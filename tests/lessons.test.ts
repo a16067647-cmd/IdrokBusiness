@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { LEVEL0 } from "../src/lib/lessons/level0.ts";
+import { COURSE as LEVEL0 } from "../src/lib/lessons/level0.ts";
 
 test("level 0 has at least 10 lessons with unique ids", () => {
-  assert.ok(LEVEL0.length >= 10);
+  assert.ok(LEVEL0.length >= 26);
   assert.equal(new Set(LEVEL0.map((l) => l.id)).size, LEVEL0.length);
 });
 

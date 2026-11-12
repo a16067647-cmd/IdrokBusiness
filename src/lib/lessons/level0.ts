@@ -344,4 +344,9 @@ export const LEVEL0: Lesson[] = [
   },
 ];
 
-export const getLesson = (id: string) => LEVEL0.find((l) => l.id === id);
+import { LEVEL0_MORE } from "./level0-more.ts";
+
+/** The full bundled Level 0 course (used when the database can't be reached). */
+export const COURSE: Lesson[] = [...LEVEL0, ...LEVEL0_MORE];
+
+export const getLesson = (id: string) => COURSE.find((l) => l.id === id);
