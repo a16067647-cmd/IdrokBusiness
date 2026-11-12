@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { usePrefs } from "@/components/providers/PrefsProvider";
-import { Card, Pill } from "@/components/ui/Glass";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { Card } from "@/components/ui/Glass";
 import { Icon } from "@/components/ui/Icon";
-import { LEVEL0 } from "@/lib/lessons/level0";
-import { lessonStates, streakInfo, type DayStatus, type LessonState } from "@/lib/lessons/progress";
+import { useLessons } from "@/lib/lessons/source";
+import { streakInfo, type DayStatus } from "@/lib/lessons/progress";
 import { lessonStore } from "@/lib/store/lessons";
+import { rulesFor, useLevels } from "@/lib/levels";
 import { useToday } from "@/lib/useToday";
-import type { MessageKey } from "@/lib/i18n";
+import { money } from "@/lib/format";
 
-const IDS = LEVEL0.map((l) => l.id);
 const DAY_STYLE: Record<DayStatus, string> = {
   done: "bg-primary text-white",
   freeze: "bg-ai-soft text-ai",
@@ -21,12 +22,24 @@ const DAY_STYLE: Record<DayStatus, string> = {
 
 export default function LearnPage() {
   const { t, lang } = usePrefs();
+  const { profile } = useAuth();
+  const { lessons } = useLessons();
   const progress = lessonStore.use();
   const today = useToday();
-  const states = lessonStates(IDS, progress, today ?? "");
+  const levels = useLevels();
   const streak = today ? streakInfo(progress, today) : null;
-  const done = states.filter((s) => s === "done").length;
   const dayNames = t("learn.days").split(",");
+
+  const myLevel = profile?.level ?? 0;
+  const visible = lessons.filter((l) => l.level <= myLevel);
+  const byLevel = new Map<number, typeof visible>();
+  for (const l of visible) byLevel.set(l.level, [...(byLevel.get(l.level) ?? []), l]);
+  const done = visible.filter((l) => progress.completed[l.id]).length;
+
+  const rules = rulesFor(levels, myLevel);
+  const have = profile?.verifiedProfitUsd ?? 0;
+  const need = rules.profitToNextUsd;
+  const pctToNext = need > 0 ? Math.min(100, (have / need) * 100) : 0;
 
   return (
     <div data-motion-preset="dashboard" className="pt-6">
@@ -53,55 +66,53 @@ export default function LearnPage() {
         </div>
       </Card>
 
-      <div className="mb-3 mt-7 flex flex-wrap items-baseline justify-between gap-3">
-        <h2 className="m-0 text-2xl font-extrabold tracking-[-0.025em]">{t("learn.level0")}</h2>
-        <span className="num text-sm text-fg2">{t("learn.progress", { done, total: LEVEL0.length })}</span>
+      <div className="mb-4 mt-7 flex flex-wrap items-center justify-between gap-3">
+        <span className="text-sm font-semibold text-fg2">{t("learn.yourLevel", { n: myLevel })}</span>
+        <span className="num text-sm text-fg2">{t("learn.progress", { done, total: visible.length })}</span>
       </div>
-      <div className="mb-4 h-2 overflow-hidden rounded-full bg-track" role="progressbar" aria-valuemin={0} aria-valuemax={LEVEL0.length} aria-valuenow={done}>
-        <div className="h-full rounded-full transition-[width] duration-500 ease-out" style={{ width: `${(done / LEVEL0.length) * 100}%`, background: "linear-gradient(90deg, var(--primary-top), var(--primary))" }} />
+      <div className="mb-5 h-2 overflow-hidden rounded-full bg-track" role="progressbar" aria-valuemin={0} aria-valuemax={visible.length} aria-valuenow={done}>
+        <div className="h-full rounded-full transition-[width] duration-500 ease-out" style={{ width: `${visible.length ? (done / visible.length) * 100 : 0}%`, background: "linear-gradient(90deg, var(--primary-top), var(--primary))" }} />
       </div>
 
-      <ol className="glass m-0 list-none overflow-hidden rounded-card p-0">
-        {LEVEL0.map((lesson, i) => {
-          const st: LessonState = states[i];
-          const reachable = st === "done" || st === "open";
-          const inner = (
-            <div className={`flex items-center gap-3.5 px-[18px] py-3.5 ${reachable ? "" : "opacity-60"}`}>
-              <span className={`grid h-10 w-10 flex-none place-items-center rounded-xl text-sm font-extrabold ${st === "done" ? "bg-success-soft text-success-fg" : st === "open" ? "bg-soft-blue text-primary" : "bg-track text-fg3"}`}>
-                {st === "done" ? <Icon name="check" size={18} strokeWidth={3} /> : reachable ? i + 1 : <Icon name="lock" size={16} />}
-              </span>
-              <div className="min-w-0 flex-1">
-                <b className={`block truncate text-[15px] font-semibold ${reachable ? "" : "blur-[0.6px]"}`}>{lesson.title[lang]}</b>
-                <span className="block truncate text-[13px] text-fg2">{t("learn.minutes", { n: lesson.minutes })} · {reachable ? lesson.summary[lang] : <span className="sm:hidden">{t(`learn.state.${st}` as MessageKey)}</span>}{!reachable && <span className="hidden sm:inline">{lesson.summary[lang]}</span>}</span>
-              </div>
-              {st === "open" ? <Pill tone="blue">{t("learn.state.open")}</Pill>
-                : st === "done" ? <span className="hidden text-[12px] font-semibold text-success-fg sm:inline">{t("learn.state.done")}</span>
-                : <span className="hidden text-[12px] text-fg3 sm:inline">{t(`learn.state.${st}` as MessageKey)}</span>}
-            </div>
-          );
-          return (
-            <li key={lesson.id} className="border-b border-hairline last:border-b-0">
-              {reachable ? <Link href={`/learn/${lesson.id}`} className="block transition-colors hover:bg-track active:bg-track">{inner}</Link> : inner}
-            </li>
-          );
-        })}
-      </ol>
-      {done === LEVEL0.length && <p className="mt-3 text-center text-sm text-fg2">{t("learn.allDone")}</p>}
+      {[...byLevel.entries()].map(([lvl, list]) => (
+        <section key={lvl} className="mb-6" aria-labelledby={`lvl-${lvl}`}>
+          <h2 id={`lvl-${lvl}`} className="mb-3 mt-0 text-2xl font-extrabold tracking-[-0.025em]">{t("learn.levelLessons", { n: lvl })}</h2>
+          <ol className="glass m-0 list-none overflow-hidden rounded-card p-0">
+            {list.map((lesson, i) => {
+              const isDone = !!progress.completed[lesson.id];
+              return (
+                <li key={lesson.id} className="border-b border-hairline last:border-b-0">
+                  <Link href={`/learn/${lesson.id}`} className="flex items-center gap-3.5 px-[18px] py-3.5 transition-colors hover:bg-track active:bg-track">
+                    <span className={`grid h-10 w-10 flex-none place-items-center rounded-xl text-sm font-extrabold ${isDone ? "bg-success-soft text-success-fg" : "bg-soft-blue text-primary"}`}>
+                      {isDone ? <Icon name="check" size={18} strokeWidth={3} /> : i + 1}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <b className="block truncate text-[15px] font-semibold">{lesson.title[lang]}</b>
+                      <span className="block truncate text-[13px] text-fg2">{t("learn.minutes", { n: lesson.minutes })} · {lesson.summary[lang]}</span>
+                    </div>
+                    <span className={`hidden text-[12px] font-semibold sm:inline ${isDone ? "text-success-fg" : "text-primary"}`}>{t(isDone ? "learn.review" : "learn.state.open")}</span>
+                    <Icon name="chevron" size={18} className="flex-none text-fg3" />
+                  </Link>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ))}
+      {visible.length > 0 && done === visible.length && <p className="text-center text-sm text-fg2">{t("learn.allDone")}</p>}
 
-      <Card className="relative mt-7 overflow-hidden">
+      <Card className="relative mt-4 overflow-hidden">
         <div className="flex items-center gap-3.5">
           <span className="grid h-11 w-11 flex-none place-items-center rounded-[14px] border border-[var(--glass-border)]" style={{ background: "var(--glass-strong)" }}><Icon name="lock" size={20} /></span>
           <div>
-            <h2 className="m-0 text-lg font-bold">{t("learn.levelNext")}</h2>
-            <p className="m-0 text-sm text-fg2">{t("learn.levelNextBody")}</p>
+            <h2 className="m-0 text-lg font-bold">{t("learn.nextLevel", { n: myLevel + 1 })}</h2>
+            <p className="m-0 text-sm text-fg2">{t("learn.nextLevelBody", { amount: money(need, "amazon", lang) })}</p>
           </div>
         </div>
-        <div className="mt-4 h-2 overflow-hidden rounded-full bg-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={0} aria-label={t("learn.levelNext")} />
-        <ul className="m-0 mt-3.5 grid list-none gap-2 p-0 text-sm text-fg2">
-          {(["learn.levelReq1", "learn.levelReq2"] as MessageKey[]).map((k) => (
-            <li key={k} className="flex items-center gap-2.5"><span className="h-4 w-4 rounded-full border-2 border-[var(--fg-3)]" />{t(k)}</li>
-          ))}
-        </ul>
+        <div className="mt-4 h-2 overflow-hidden rounded-full bg-track" role="progressbar" aria-valuemin={0} aria-valuemax={need} aria-valuenow={have} aria-label={t("learn.nextLevel", { n: myLevel + 1 })}>
+          <div className="h-full rounded-full" style={{ width: `${pctToNext}%`, background: "linear-gradient(90deg, #4cd471, var(--success))" }} />
+        </div>
+        <p className="num mb-0 mt-2 text-[13px] text-fg2">{t("learn.profitProgress", { have: money(have, "amazon", lang), need: money(need, "amazon", lang) })}</p>
       </Card>
     </div>
   );

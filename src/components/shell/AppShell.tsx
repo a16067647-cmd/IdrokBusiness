@@ -14,7 +14,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { t, lang, setLang } = usePrefs();
   const pathname = usePathname();
   const router = useRouter();
-  const { configured, loading, session } = useAuth();
+  const { configured, loading, session, profile } = useAuth();
   const onAuthPage = pathname.startsWith("/auth");
   // Signed-out users only see the sign-in screen (when sign-in is configured).
   const blocked = configured && !session && !onAuthPage;
@@ -57,6 +57,12 @@ export function AppShell({ children }: { children: ReactNode }) {
                   {t(n.label)}
                 </Link>
               ))}
+              {profile?.isAdmin && (
+                <Link href="/admin" aria-current={pathname.startsWith("/admin") ? "page" : undefined}
+                  className={`rounded-xl px-3 py-2 text-[13px] font-semibold transition-colors duration-200 ${pathname.startsWith("/admin") ? "bg-ai-soft text-ai" : "text-ai hover:opacity-80"}`}>
+                  {t("admin.link")}
+                </Link>
+              )}
             </nav>}
             <Segmented<Lang> label={t("settings.language")} value={lang} onChange={setLang}
               options={[{ value: "uz", label: "UZ" }, { value: "ru", label: "RU" }]} />

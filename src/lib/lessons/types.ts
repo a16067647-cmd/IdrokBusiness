@@ -16,10 +16,13 @@ export type Slide =
 
 export interface Lesson {
   id: string;
-  level: 0;
+  level: number;
   minutes: number;
   icon: IconName;
   title: L10n;
   summary: L10n;
   slides: Slide[];
 }
+
+/** A lesson as stored in the database (admins also see unpublished ones). */
+export interface LessonRecord extends Lesson { position: number; published: boolean }
