@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { PrefsProvider, themeBootScript } from "@/components/providers/PrefsProvider";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 import { MotionBackground } from "@/components/motion/MotionBackground";
 import { Intro } from "@/components/intro/Intro";
 import { AppShell } from "@/components/shell/AppShell";
@@ -28,9 +29,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans">
         <PrefsProvider>
-          <MotionBackground />
-          <AppShell>{children}</AppShell>
-          <Intro />
+          <AuthProvider>
+            <MotionBackground />
+            <AppShell>{children}</AppShell>
+            <Intro />
+          </AuthProvider>
         </PrefsProvider>
       </body>
     </html>
