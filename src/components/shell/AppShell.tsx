@@ -32,6 +32,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       el.style.setProperty("--mx", `${(((e.clientX - r.left) / r.width) * 100).toFixed(1)}%`);
       el.style.setProperty("--my", `${(((e.clientY - r.top) / r.height) * 100).toFixed(1)}%`);
     };
+    if (document.documentElement.classList.contains("lite")) return;
     document.addEventListener("pointermove", onMove, { passive: true });
     return () => document.removeEventListener("pointermove", onMove);
   }, []);

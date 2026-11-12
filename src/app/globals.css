@@ -159,3 +159,20 @@ html.intro-active [data-brand-logo] { opacity: 0; }
 .anim-pop { animation: pop 560ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: var(--d, 0ms); }
 .anim-draw { transform-origin: left; animation: draw 900ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: var(--d, 0ms); }
 .anim-travel { animation: travel 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite; animation-delay: var(--d, 0ms); }
+
+/* ---------- lite mode (phones and the Android app) ----------
+   Live backdrop blur over an animated background is the most expensive
+   thing a mobile GPU can draw. Lite mode uses solid surfaces instead. */
+:root { --solid: #ffffff; --solid-bar: rgba(255, 255, 255, 0.96); }
+:root[data-theme="dark"] { --solid: #151c33; --solid-bar: rgba(16, 22, 42, 0.97); }
+html.lite .glass {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: var(--solid);
+  box-shadow: 0 1px 2px var(--glass-shadow), 0 8px 24px -16px var(--glass-shadow);
+  border-color: var(--hairline);
+}
+html.lite .glass::before { display: none; }
+html.lite header .glass, html.lite nav.glass { background: var(--solid-bar); }
+html.lite dialog::backdrop { -webkit-backdrop-filter: none; backdrop-filter: none; }
+html.lite .i-shard { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }

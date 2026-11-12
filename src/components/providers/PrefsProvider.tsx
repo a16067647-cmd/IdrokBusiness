@@ -19,17 +19,20 @@ interface PrefsCtx extends Prefs {
 
 const STORAGE_KEY = "idrok.prefs";
 const DEFAULTS: Prefs = { lang: "uz", theme: "system", motion: true, sound: true };
+
+/** Phones and the Android app: no live blur, still background by default (much faster on mobile GPUs). */
+export const isLite = () => typeof document !== "undefined" && document.documentElement.classList.contains("lite");
 const Ctx = createContext<PrefsCtx | null>(null);
 
 function load(): Prefs {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULTS;
+    if (!raw) return { ...DEFAULTS, motion: !isLite() };
     const p = JSON.parse(raw) as Partial<Prefs>;
     return {
       lang: p.lang === "ru" ? "ru" : "uz",
       theme: p.theme === "light" || p.theme === "dark" ? p.theme : "system",
-      motion: p.motion !== false,
+      motion: typeof p.motion === "boolean" ? p.motion : !isLite(),
       sound: p.sound !== false,
     };
   } catch {
@@ -38,7 +41,7 @@ function load(): Prefs {
 }
 
 /** Runs before paint (inlined in <head>) so the first frame already has the right theme. */
-export const themeBootScript = `(function(){try{var p=JSON.parse(localStorage.getItem("${STORAGE_KEY}")||"{}");var t=p.theme;if(t!=="light"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t);if(p.lang==="ru")document.documentElement.lang="ru"}catch(e){}})();`;
+export const themeBootScript = `(function(){try{var p=JSON.parse(localStorage.getItem("${STORAGE_KEY}")||"{}");var t=p.theme;if(t!=="light"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}var d=document.documentElement;d.setAttribute("data-theme",t);if(matchMedia("(pointer: coarse)").matches||window.Capacitor||/; wv\\)/.test(navigator.userAgent))d.classList.add("lite");if(p.lang==="ru")document.documentElement.lang="ru"}catch(e){}})();`;
 
 export function PrefsProvider({ children }: { children: ReactNode }) {
   const [prefs, setPrefs] = useState<Prefs>(DEFAULTS);

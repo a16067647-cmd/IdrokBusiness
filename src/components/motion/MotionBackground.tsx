@@ -21,7 +21,10 @@ export function MotionBackground() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     try {
-      fieldRef.current = new MotionField(canvas, businessMotion);
+      const lite = document.documentElement.classList.contains("lite");
+      fieldRef.current = new MotionField(canvas, lite
+        ? { ...businessMotion, dprCap: 1, density: { pxPerPoint: 9000, min: 40, max: 90 } }
+        : businessMotion);
     } catch (err) {
       if (process.env.NODE_ENV !== "production") console.error("[motion-lab] init failed", err);
       canvas.style.display = "none";

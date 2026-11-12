@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePrefs } from "@/components/providers/PrefsProvider";
-import { IntroSound, OUTRO_AT } from "./introSound";
+import { IntroSound, OUTRO_AT, SPEED } from "./introSound";
 
 /**
  * Opening intro (~4 s): light streaks and glass shards converge, merge into the
@@ -134,7 +134,7 @@ export function Intro() {
     const a = anim.current;
     cancelAnimationFrame(a.raf);
     a.reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    a.duration = a.reduced ? 1.8 : 4.2;
+    a.duration = a.reduced ? 1.2 : 4.2 / SPEED;
     document.documentElement.classList.add("intro-active");
     setVisible(true);
     requestAnimationFrame(() => {
@@ -144,7 +144,7 @@ export function Intro() {
       a.startAt = performance.now();
       const tick = (now: number) => {
         const time = (now - a.startAt) / 1000;
-        render(Math.min(time, a.duration));
+        render(Math.min(time * (a.reduced ? 1.5 : SPEED), a.reduced ? 1.8 : 4.2));
         if (time >= a.duration) { finish(); return; }
         a.raf = requestAnimationFrame(tick);
       };
@@ -184,13 +184,6 @@ export function Intro() {
   // Replay from Settings.
   useEffect(() => { if (introNonce > 0) playWithSound(); }, [introNonce, playWithSound]);
 
-  const skip = () => {
-    sound.current?.stop();
-    const a = anim.current;
-    const time = (performance.now() - a.startAt) / 1000;
-    if (a.reduced) { finish(); return; }
-    if (time < OUTRO_AT) a.startAt = performance.now() - OUTRO_AT * 1000;
-  };
 
   if (!visible) return null;
   return (
@@ -199,7 +192,7 @@ export function Intro() {
       <canvas ref={fxRef} aria-hidden className="absolute inset-0 block h-full w-full" />
       <div ref={stageRef} className="absolute left-1/2 top-[46%]" style={{ width: "var(--tile)", height: "var(--tile)", margin: "calc(var(--tile) / -2) 0 0 calc(var(--tile) / -2)" }}>
         {[0, 1, 2].map((i) => (
-          <div key={i} ref={(el) => { shardRefs.current[i] = el; }} className="absolute inset-0 rounded-[28%] opacity-0"
+          <div key={i} ref={(el) => { shardRefs.current[i] = el; }} className="i-shard absolute inset-0 rounded-[28%] opacity-0"
             style={{ background: "rgba(120,170,255,0.16)", border: "1px solid rgba(255,255,255,0.22)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 20px 50px -20px rgba(0,0,0,0.6)", willChange: "transform, opacity" }} />
         ))}
         <div ref={tileRef} className="absolute inset-0 overflow-hidden rounded-[24%] opacity-0"
@@ -220,9 +213,6 @@ export function Intro() {
             {t("intro.sound")}
           </button>
         )}
-        <button type="button" onClick={skip} className="inline-flex h-10 items-center rounded-full border border-white/15 bg-white/10 px-4 text-[13px] font-semibold backdrop-blur-md active:scale-[0.96]">
-          {t("intro.skip")}
-        </button>
       </div>
     </div>
   );

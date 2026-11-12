@@ -2,6 +2,8 @@
 // Timeline matches Intro.tsx: whoosh in → merge thump + chime → sparkle → whoosh out.
 
 export const OUTRO_AT = 3.35;
+/** The intro timeline plays this much faster than its design (≈2.7 s in total). */
+export const SPEED = 1.55;
 
 export class IntroSound {
   private ac: AudioContext | null = null;
@@ -63,15 +65,15 @@ export class IntroSound {
     const t0 = ac.currentTime + 0.02;
 
     if (reduced) { this.chime(t0 + 0.1); return; }
-    this.noiseHit(t0 + 0.05, 1.0, "bandpass", 350, 2600, 0.9, 0.5, 0.7);
-    const tg = t0 + 0.95;
+    this.noiseHit(t0 + 0.05 / SPEED, 1.0, "bandpass", 350, 2600, 0.9, 0.5, 0.7);
+    const tg = t0 + 0.95 / SPEED;
     const o = ac.createOscillator(); o.type = "sine";
     o.frequency.setValueAtTime(110, tg); o.frequency.exponentialRampToValueAtTime(48, tg + 0.35);
     const og = ac.createGain(); this.env(og, tg, 0.7, 0.015, 0.43);
     o.connect(og).connect(master); o.start(tg); o.stop(tg + 0.5);
-    this.chime(t0 + 1.0);
-    this.noiseHit(t0 + 1.55, 0.8, "highpass", 6000, 6000, 0.7, 0.12, 0.25);
-    this.noiseHit(t0 + OUTRO_AT, 0.75, "bandpass", 1800, 420, 0.8, 0.18, 0.3);
+    this.chime(t0 + 1.0 / SPEED);
+    this.noiseHit(t0 + 1.55 / SPEED, 0.8, "highpass", 6000, 6000, 0.7, 0.12, 0.25);
+    this.noiseHit(t0 + OUTRO_AT / SPEED, 0.75, "bandpass", 1800, 420, 0.8, 0.18, 0.3);
   }
 
   private env(g: GainNode, t: number, peak: number, attack: number, release: number) {
