@@ -4,14 +4,12 @@ import { addDays, lessonStates, streakInfo, weekStart } from "../src/lib/lessons
 
 const ids = ["l1", "l2", "l3"];
 
-test("first lesson is open, the rest locked", () => {
-  assert.deepEqual(lessonStates(ids, { completed: {} }, "2026-11-12"), ["open", "locked", "locked"]);
+test("every lesson is open from the start", () => {
+  assert.deepEqual(lessonStates(ids, { completed: {} }), ["open", "open", "open"]);
 });
 
-test("next lesson opens the day after the previous one is finished", () => {
-  const p = { completed: { l1: "2026-11-12" } };
-  assert.deepEqual(lessonStates(ids, p, "2026-11-12"), ["done", "tomorrow", "locked"]);
-  assert.deepEqual(lessonStates(ids, p, "2026-11-13"), ["done", "open", "locked"]);
+test("finishing lessons marks them done without locking the rest", () => {
+  assert.deepEqual(lessonStates(ids, { completed: { l1: "2026-11-12", l3: "2026-11-12" } }), ["done", "open", "done"]);
 });
 
 test("weeks start on Monday", () => {

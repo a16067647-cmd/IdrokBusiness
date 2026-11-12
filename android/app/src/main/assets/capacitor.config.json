@@ -1,0 +1,14 @@
+{
+	"appId": "uz.idrok.business",
+	"appName": "Idrok Business",
+	"webDir": "capacitor-shell",
+	"backgroundColor": "#0B1022",
+	"server": {
+		"url": "https://idrok-business.onrender.com",
+		"cleartext": false,
+		"errorPath": "offline.html"
+	},
+	"android": {
+		"allowMixedContent": false
+	}
+}

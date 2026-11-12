@@ -5,17 +5,16 @@ import { useMemo, useState, type CSSProperties } from "react";
 import { usePrefs } from "@/components/providers/PrefsProvider";
 import { Icon } from "@/components/ui/Icon";
 import { Visual } from "./Visual";
-import { LEVEL0, getLesson } from "@/lib/lessons/level0";
-import { lessonStates, streakInfo } from "@/lib/lessons/progress";
+import { useLessons } from "@/lib/lessons/source";
+import { streakInfo } from "@/lib/lessons/progress";
 import { completeLesson, lessonStore } from "@/lib/store/lessons";
 import { useToday } from "@/lib/useToday";
 import { sfx } from "@/lib/sfx";
 
-const IDS = LEVEL0.map((l) => l.id);
-
 export function LessonPlayer({ id }: { id: string }) {
   const { t, lang } = usePrefs();
-  const lesson = getLesson(id)!;
+  const { lessons, loading } = useLessons();
+  const lesson = lessons.find((l) => l.id === id);
   const progress = lessonStore.use();
   const today = useToday();
   const [step, setStep] = useState(0);
@@ -24,27 +23,25 @@ export function LessonPlayer({ id }: { id: string }) {
   const [finished, setFinished] = useState(false);
   const [wasReview, setWasReview] = useState(false);
 
-  const idx = IDS.indexOf(id);
-  const state = today ? lessonStates(IDS, progress, today)[idx] : null;
-  const total = lesson.slides.length;
-  const slide = lesson.slides[step];
-  const isLast = step === total - 1;
   const streak = useMemo(() => (today ? streakInfo(progress, today) : null), [progress, today]);
 
-  if (state === null) return <div className="min-h-[60vh]" />;
-
-  if (!finished && (state === "locked" || state === "tomorrow")) {
+  if (!lesson) {
+    if (loading) return <div className="min-h-[60vh]" />;
     return (
       <div data-motion-preset="dashboard" className="grid min-h-[60vh] place-items-center pt-6">
         <div className="glass max-w-md rounded-card p-7 text-center">
-          <span className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-track"><Icon name="lock" size={24} /></span>
-          <h1 className="m-0 text-xl font-extrabold">{t("learn.lockedTitle")}</h1>
-          <p className="mb-5 mt-1.5 text-sm text-fg2">{state === "tomorrow" ? t("learn.state.tomorrow") : t("learn.lockedBody")}</p>
-          <Link href="/learn" className="btn btn-primary btn-sm">{t("learn.backToList")}</Link>
+          <span className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-track"><Icon name="book" size={24} /></span>
+          <h1 className="m-0 text-xl font-extrabold">{t("learn.notFound")}</h1>
+          <Link href="/learn" className="btn btn-primary btn-sm mt-5">{t("learn.backToList")}</Link>
         </div>
       </div>
     );
   }
+
+  const isDoneAlready = !!progress.completed[id];
+  const total = lesson.slides.length;
+  const slide = lesson.slides[Math.min(step, total - 1)];
+  const isLast = step >= total - 1;
 
   const advance = () => {
     if (slide.kind === "quiz" && !checked) {
@@ -54,7 +51,7 @@ export function LessonPlayer({ id }: { id: string }) {
       return;
     }
     if (isLast) {
-      setWasReview(state === "done");
+      setWasReview(isDoneAlready);
       completeLesson(id);
       setFinished(true);
       sfx.complete();

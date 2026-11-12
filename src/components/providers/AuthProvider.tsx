@@ -3,12 +3,16 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
-import { pullAll, pushLesson, pushLimits, pushProduct, setRemoteErrorHandler, setRemoteUser } from "@/lib/remote";
-import { auditStore, DEFAULT_LIMITS, limitsStore, productsStore } from "@/lib/store/products";
+import { pullAll, pushLesson, pushProduct, setRemoteErrorHandler, setRemoteUser } from "@/lib/remote";
+import { auditStore, productsStore } from "@/lib/store/products";
 import { lessonStore } from "@/lib/store/lessons";
+
+export interface Profile { fullName: string; level: number; isAdmin: boolean; verifiedProfitUsd: number }
 
 interface AuthCtx {
   configured: boolean;
+  profile: Profile | null;
+  refreshProfile: () => Promise<void>;
   loading: boolean;
   session: Session | null;
   fullName: string;
@@ -23,7 +27,6 @@ const OWNER_KEY = "idrok.owner";
 function clearLocal() {
   productsStore.set([]);
   lessonStore.set({ completed: {} });
-  limitsStore.set(DEFAULT_LIMITS);
   auditStore.set([]);
 }
 
@@ -40,18 +43,16 @@ async function syncFor(userId: string) {
   const remote = await pullAll();
   if (!remote) return;
 
-  const local = { products: productsStore.get(), lessons: lessonStore.get(), limits: limitsStore.get() };
+  const local = { products: productsStore.get(), lessons: lessonStore.get() };
   const remoteEmpty = remote.products.length === 0 && Object.keys(remote.lessons.completed).length === 0;
   if (!owner && remoteEmpty) {
     await Promise.all([
       ...local.products.map(pushProduct),
       ...Object.entries(local.lessons.completed).map(([id, day]) => pushLesson(id, day)),
-      pushLimits(local.limits),
     ]);
   } else {
     productsStore.set(remote.products);
     lessonStore.set(remote.lessons);
-    limitsStore.set(remote.limits ?? DEFAULT_LIMITS);
   }
   try { localStorage.setItem(OWNER_KEY, userId); } catch { /* ignore */ }
 }
@@ -61,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(configured);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
     const sb = supabase();
@@ -72,12 +74,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const userId = session?.user.id ?? null;
+
+  const refreshProfile = useCallback(async () => {
+    const sb = supabase();
+    if (!sb || !userId) { setProfile(null); return; }
+    const { data } = await sb.from("profiles").select("full_name, level, is_admin, verified_profit_usd").eq("id", userId).maybeSingle();
+    setProfile(data ? { fullName: data.full_name ?? "", level: data.level ?? 0, isAdmin: !!data.is_admin, verifiedProfitUsd: Number(data.verified_profit_usd ?? 0) } : null);
+  }, [userId]);
+
   useEffect(() => {
     setRemoteUser(userId);
-    if (!userId) return;
+    if (!userId) { setProfile(null); return; }
     setSyncError(null);
     void syncFor(userId);
-  }, [userId]);
+    void refreshProfile();
+  }, [userId, refreshProfile]);
 
   const signOut = useCallback(async () => {
     await supabase()?.auth.signOut();
@@ -87,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const meta = (session?.user.user_metadata ?? {}) as { full_name?: string };
   return (
-    <Ctx.Provider value={{ configured, loading, session, fullName: meta.full_name ?? "", email: session?.user.email ?? "", syncError, signOut }}>
+    <Ctx.Provider value={{ configured, profile, refreshProfile, loading, session, fullName: meta.full_name ?? "", email: session?.user.email ?? "", syncError, signOut }}>
       {children}
     </Ctx.Provider>
   );

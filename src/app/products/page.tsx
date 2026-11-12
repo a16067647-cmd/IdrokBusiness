@@ -6,7 +6,9 @@ import { Card, Pill, SectionHead, Tile } from "@/components/ui/Glass";
 import { Icon } from "@/components/ui/Icon";
 import { calculateProfit } from "@/lib/profit";
 import { checkGuardrails } from "@/lib/guardrails";
-import { limitsFor, limitsStore, productsStore, type Product } from "@/lib/store/products";
+import { productsStore, type Product } from "@/lib/store/products";
+import { rulesFor, toLimits, useLevels } from "@/lib/levels";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { getMarketplace } from "@/lib/marketplaces";
 import { money } from "@/lib/format";
 import type { MessageKey } from "@/lib/i18n";
@@ -18,7 +20,9 @@ const STATUS_TONE = { idea: "muted", researching: "blue", approved: "ok", reject
 export default function ProductsPage() {
   const { t, lang } = usePrefs();
   const products = productsStore.use();
-  const limits = limitsStore.use();
+  const levels = useLevels();
+  const { profile } = useAuth();
+  const level = profile?.level ?? 0;
   const [editing, setEditing] = useState<Product | undefined>();
   const [open, setOpen] = useState(false);
   const openEditor = (p?: Product) => { setEditing(p); setOpen(true); };
@@ -45,7 +49,7 @@ export default function ProductsPage() {
           {products.map((p) => {
             const r = calculateProfit(p);
             const budget = p.unitCost != null && p.quantity != null ? (p.unitCost + (p.shippingPerUnit ?? 0)) * p.quantity : undefined;
-            const v = checkGuardrails({ unitCost: p.unitCost, orderBudget: budget, weightKg: p.weightKg, longestCm: p.longestCm, restricted: p.restricted }, limitsFor(limits, p.marketplace));
+            const v = checkGuardrails({ unitCost: p.unitCost, orderBudget: budget, weightKg: p.weightKg, longestCm: p.longestCm, restricted: p.restricted }, toLimits(rulesFor(levels, level), p.marketplace));
             return (
               <li key={p.id}>
                 <button type="button" onClick={() => openEditor(p)} className="glass block w-full rounded-card p-5 text-left transition-transform duration-150 active:scale-[0.98]">
@@ -73,7 +77,7 @@ export default function ProductsPage() {
       )}
 
       <section aria-labelledby="h-limits">
-        <SectionHead id="h-limits" title={t("limits.title")} />
+        <SectionHead id="h-limits" title={t("limits.title", { n: level })} />
         <LimitsCard />
       </section>
       <p className="mt-6 text-center text-[12px] text-fg3">{t("products.localNote")}</p>
