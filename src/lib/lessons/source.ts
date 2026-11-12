@@ -2,7 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import { supabase } from "@/lib/supabase/client";
-import { LEVEL0 } from "./level0";
+import { COURSE } from "./level0";
 import type { Lesson, LessonRecord } from "./types";
 
 // Lessons come from the database so admins can change them. The bundled
@@ -10,7 +10,7 @@ import type { Lesson, LessonRecord } from "./types";
 
 interface State { lessons: LessonRecord[]; source: "bundled" | "database"; loading: boolean }
 
-const bundled: LessonRecord[] = LEVEL0.map((l, i) => ({ ...l, position: i, published: true }));
+const bundled: LessonRecord[] = COURSE.map((l, i) => ({ ...l, position: i, published: true }));
 let state: State = { lessons: bundled, source: "bundled", loading: true };
 const listeners = new Set<() => void>();
 let inflight: Promise<void> | null = null;
