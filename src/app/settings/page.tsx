@@ -15,7 +15,7 @@ function Row({ title, hint, children }: { title: string; hint?: string; children
 }
 
 export default function SettingsPage() {
-  const { t, lang, setLang, theme, setTheme, motion, setMotion, replayIntro } = usePrefs();
+  const { t, lang, setLang, theme, setTheme, motion, setMotion, sound, setSound, replayIntro } = usePrefs();
   return (
     <div data-motion-preset="dashboard" className="pt-6">
       <h1 className="mb-5 text-[30px] font-extrabold tracking-[-0.03em]">{t("settings.title")}</h1>
@@ -30,6 +30,10 @@ export default function SettingsPage() {
         </Row>
         <Row title={t("settings.motion")} hint={t("settings.motionHint")}>
           <Segmented<"on" | "off"> label={t("settings.motion")} value={motion ? "on" : "off"} onChange={(v) => setMotion(v === "on")}
+            options={[{ value: "on", label: t("settings.on") }, { value: "off", label: t("settings.off") }]} />
+        </Row>
+        <Row title={t("settings.sound")} hint={t("settings.soundHint")}>
+          <Segmented<"on" | "off"> label={t("settings.sound")} value={sound ? "on" : "off"} onChange={(v) => setSound(v === "on")}
             options={[{ value: "on", label: t("settings.on") }, { value: "off", label: t("settings.off") }]} />
         </Row>
         <Row title={t("settings.intro")}>

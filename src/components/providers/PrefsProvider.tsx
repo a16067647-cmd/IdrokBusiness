@@ -2,13 +2,15 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { translate, type Lang, type MessageKey } from "@/lib/i18n";
+import { setSfxEnabled } from "@/lib/sfx";
 
 export type ThemePref = "system" | "light" | "dark";
-interface Prefs { lang: Lang; theme: ThemePref; motion: boolean }
+interface Prefs { lang: Lang; theme: ThemePref; motion: boolean; sound: boolean }
 interface PrefsCtx extends Prefs {
   setLang: (l: Lang) => void;
   setTheme: (t: ThemePref) => void;
   setMotion: (m: boolean) => void;
+  setSound: (s: boolean) => void;
   t: (key: MessageKey, vars?: Record<string, string | number>) => string;
   resolvedTheme: "light" | "dark";
   introNonce: number;
@@ -16,7 +18,7 @@ interface PrefsCtx extends Prefs {
 }
 
 const STORAGE_KEY = "idrok.prefs";
-const DEFAULTS: Prefs = { lang: "uz", theme: "system", motion: true };
+const DEFAULTS: Prefs = { lang: "uz", theme: "system", motion: true, sound: true };
 const Ctx = createContext<PrefsCtx | null>(null);
 
 function load(): Prefs {
@@ -28,6 +30,7 @@ function load(): Prefs {
       lang: p.lang === "ru" ? "ru" : "uz",
       theme: p.theme === "light" || p.theme === "dark" ? p.theme : "system",
       motion: p.motion !== false,
+      sound: p.sound !== false,
     };
   } catch {
     return DEFAULTS;
@@ -59,6 +62,7 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.lang = prefs.lang;
   }, [prefs.lang]);
+  useEffect(() => { setSfxEnabled(prefs.sound); }, [prefs.sound]);
 
   const update = useCallback((patch: Partial<Prefs>) => {
     setPrefs((p) => {
@@ -74,6 +78,7 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
     setLang: (lang) => update({ lang }),
     setTheme: (theme) => update({ theme }),
     setMotion: (motion) => update({ motion }),
+    setSound: (sound) => update({ sound }),
     t: (key, vars) => translate(prefs.lang, key, vars),
     introNonce,
     replayIntro: () => setIntroNonce((n) => n + 1),
