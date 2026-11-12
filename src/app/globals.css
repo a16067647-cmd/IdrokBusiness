@@ -1,0 +1,149 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource/jetbrains-mono/500.css";
+@import "@fontsource/jetbrains-mono/600.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------
+   Idrok design tokens. Light is the default; dark is applied by the
+   PrefsProvider through <html data-theme="dark">.
+   ------------------------------------------------------------------ */
+:root {
+  --bg: #f5f7fb;
+  --bg-glow: rgba(59, 140, 255, 0.16);
+  --fg: #0a1226;
+  --fg-2: #5b6475;
+  --fg-3: #9aa3b5;
+  --primary: #0a6cff;
+  --primary-top: #3b8cff;
+  --primary-deep: #0a5ce0;
+  --soft-blue: #e6f0ff;
+  --ai: #5856d6;
+  --ai-soft: #eeedff;
+  --success: #34c759;
+  --success-soft: #e9f9ef;
+  --success-fg: #1e8e45;
+  --warn: #ff9500;
+  --warn-soft: #fff3d6;
+  --warn-fg: #9a6b00;
+  --danger: #ff3b30;
+  --danger-soft: #ffedee;
+  --danger-fg: #d93040;
+  --hairline: rgba(10, 18, 38, 0.08);
+  --track: rgba(10, 18, 38, 0.06);
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass-strong: rgba(255, 255, 255, 0.76);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-hi: rgba(255, 255, 255, 0.9);
+  --glass-shadow: rgba(10, 30, 80, 0.1);
+  --sheen: rgba(255, 255, 255, 0.55);
+  --field: rgba(255, 255, 255, 0.8);
+  --field-border: #e3e8f0;
+  /* motion canvas (rgb triplets) */
+  --cv-a: 10, 108, 255;
+  --cv-b: 72, 86, 112;
+  --cv-warm: 230, 140, 30;
+  --cv-line: 10, 40, 100;
+  --cv-alpha: 0.7;
+  --cv-glow: 0;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #0b1022;
+  --bg-glow: rgba(10, 108, 255, 0.22);
+  --fg: #eef2fa;
+  --fg-2: #98a2b8;
+  --fg-3: #6a748a;
+  --soft-blue: rgba(59, 140, 255, 0.18);
+  --ai: #8b84ff;
+  --ai-soft: rgba(139, 107, 255, 0.18);
+  --success-soft: rgba(52, 199, 89, 0.15);
+  --success-fg: #5fdc84;
+  --warn-soft: rgba(255, 149, 0, 0.14);
+  --warn-fg: #ffb547;
+  --danger-soft: rgba(255, 77, 94, 0.15);
+  --danger-fg: #ff7a86;
+  --hairline: rgba(255, 255, 255, 0.08);
+  --track: rgba(255, 255, 255, 0.08);
+  --glass: rgba(20, 28, 56, 0.45);
+  --glass-strong: rgba(22, 30, 60, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-hi: rgba(255, 255, 255, 0.14);
+  --glass-shadow: rgba(0, 0, 0, 0.35);
+  --sheen: rgba(140, 180, 255, 0.16);
+  --field: rgba(255, 255, 255, 0.05);
+  --field-border: rgba(255, 255, 255, 0.12);
+  --cv-a: 92, 156, 255;
+  --cv-b: 200, 210, 228;
+  --cv-warm: 255, 181, 71;
+  --cv-line: 170, 190, 230;
+  --cv-alpha: 1;
+  --cv-glow: 1;
+  color-scheme: dark;
+}
+
+html, body { min-height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@layer components {
+  /* Liquid glass: frosted surface, inner highlight, sheen that follows the pointer. */
+  .glass {
+    position: relative;
+    isolation: isolate;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
+    backdrop-filter: blur(22px) saturate(170%);
+    border: 1px solid var(--glass-border);
+    box-shadow: inset 0 1px 0 var(--glass-hi), 0 12px 32px -12px var(--glass-shadow), 0 2px 6px -2px var(--glass-shadow);
+  }
+  .glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(420px circle at var(--mx, 20%) var(--my, 0%), var(--sheen), transparent 45%);
+  }
+  .glass-strong { background: var(--glass-strong); }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 h-[50px] px-[22px] rounded-btn font-bold text-[15px] leading-none
+      cursor-pointer select-none transition-transform duration-150 ease-out active:scale-[0.96] disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    color: #fff;
+    background: linear-gradient(180deg, var(--primary-top), var(--primary));
+    box-shadow: 0 10px 24px -10px rgba(10, 108, 255, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  .btn-sm { @apply h-[38px] px-[14px] rounded-xl text-[13px]; }
+
+  .field {
+    @apply w-full h-12 px-4 rounded-[14px] text-[15px] outline-none transition-shadow duration-200;
+    background: var(--field);
+    border: 1px solid var(--field-border);
+    color: var(--fg);
+  }
+  .field::placeholder { color: var(--fg-3); }
+  .field:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(10, 108, 255, 0.18); }
+
+  .label-caps { @apply text-[11px] font-bold uppercase tracking-[0.06em] text-fg3; }
+  .num { font-family: "JetBrains Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+}
+
+:focus-visible { outline: 3px solid rgba(10, 108, 255, 0.45); outline-offset: 2px; }
+html.intro-active, html.intro-active body { overflow: hidden; }
+html.intro-active [data-brand-logo] { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
