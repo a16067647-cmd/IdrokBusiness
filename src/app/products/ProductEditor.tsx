@@ -6,7 +6,9 @@ import { Sheet } from "@/components/ui/Sheet";
 import { Segmented } from "@/components/ui/Glass";
 import { calculateProfit, type RequiredField } from "@/lib/profit";
 import { checkGuardrails, RESTRICTED_CATEGORIES, type RestrictedCategory } from "@/lib/guardrails";
-import { deleteProduct, limitsFor, limitsStore, saveProduct, type Product, type ProductStatus } from "@/lib/store/products";
+import { deleteProduct, saveProduct, type Product, type ProductStatus } from "@/lib/store/products";
+import { rulesFor, toLimits, useLevels } from "@/lib/levels";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { MARKETPLACES, type MarketplaceId } from "@/lib/marketplaces";
 import { money, pct } from "@/lib/format";
 import type { MessageKey } from "@/lib/i18n";
@@ -35,7 +37,9 @@ const parse = (s: string): number | undefined => {
 
 export function ProductEditor({ product, open, onClose }: { product?: Product; open: boolean; onClose: () => void }) {
   const { t, lang } = usePrefs();
-  const limits = limitsStore.use();
+  const levels = useLevels();
+  const { profile } = useAuth();
+  const level = profile?.level ?? 0;
   const [f, setF] = useState<Form>(toForm(product));
   const [confirmDelete, setConfirmDelete] = useState(false);
   useEffect(() => { if (open) { setF(toForm(product)); setConfirmDelete(false); } }, [open, product]);
@@ -43,11 +47,11 @@ export function ProductEditor({ product, open, onClose }: { product?: Product; o
   const nums = useMemo(() => Object.fromEntries(NUM_FIELDS.map((k) => [k, parse(f[k])])) as Record<NumField, number | undefined>, [f]);
   const result = calculateProfit(nums);
   const orderBudget = nums.unitCost != null && nums.quantity != null ? (nums.unitCost + (nums.shippingPerUnit ?? 0)) * nums.quantity : undefined;
-  const violations = checkGuardrails({ unitCost: nums.unitCost, orderBudget, weightKg: nums.weightKg, longestCm: nums.longestCm, restricted: f.restricted }, limitsFor(limits, f.marketplace));
+  const violations = checkGuardrails({ unitCost: nums.unitCost, orderBudget, weightKg: nums.weightKg, longestCm: nums.longestCm, restricted: f.restricted }, toLimits(rulesFor(levels, level), f.marketplace));
   const m = (v: number | null) => money(v, f.marketplace, lang);
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setF((x) => ({ ...x, [k]: v }));
-  const canSave = f.name.trim().length > 0;
+  const canSave = f.name.trim().length > 0 && violations.length === 0;
 
   const save = () => {
     if (!canSave) return;
@@ -131,6 +135,7 @@ export function ProductEditor({ product, open, onClose }: { product?: Product; o
         </section>
 
         <ViolationList violations={violations} marketplace={f.marketplace} />
+        {violations.length > 0 && <p className="-mt-2 mb-0 text-[13px] font-semibold text-danger-fg">{t("viol.blockSave", { n: level })}</p>}
 
         <label className="grid gap-1.5">
           <span className="text-[13px] font-semibold text-fg2">{t("field.notes")} <span className="font-normal text-fg3">· {t("field.optional")}</span></span>

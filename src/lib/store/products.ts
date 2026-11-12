@@ -1,9 +1,9 @@
 "use client";
 
 import { createLocalStore } from "./local";
-import { LEVEL_0_DEFAULTS, type Limits, type RestrictedCategory } from "@/lib/guardrails";
+import type { RestrictedCategory } from "@/lib/guardrails";
 import type { MarketplaceId } from "@/lib/marketplaces";
-import { pushAudit, pushLimits, pushProduct, removeProduct } from "@/lib/remote";
+import { pushAudit, pushProduct, removeProduct } from "@/lib/remote";
 
 export type ProductStatus = "idea" | "researching" | "approved" | "rejected";
 
@@ -31,15 +31,9 @@ export interface Product {
 
 export interface AuditEntry { id: string; at: string; action: "create" | "update" | "delete" | "status" | "limits" | "lesson" | "signin"; subject: string; detail?: string }
 
-export interface UserLimits { usd: Limits; uzs: Pick<Limits, "maxUnitCost" | "maxOrderBudget"> }
-export const DEFAULT_LIMITS: UserLimits = {
-  usd: LEVEL_0_DEFAULTS,
-  uzs: { maxUnitCost: 60000, maxOrderBudget: 3500000 },
-};
 
 export const productsStore = createLocalStore<Product[]>("idrok.products", []);
 export const auditStore = createLocalStore<AuditEntry[]>("idrok.audit", []);
-export const limitsStore = createLocalStore<UserLimits>("idrok.limits", DEFAULT_LIMITS);
 
 const uid = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
@@ -62,7 +56,10 @@ export function saveProduct(input: Omit<Product, "id" | "createdAt" | "updatedAt
     return [saved, ...list];
   });
   audit(input.id ? "update" : "create", saved.name);
-  void pushProduct(saved);
+  void pushProduct(saved).then((rejected) => {
+    // The database refused it (level rules changed since the page loaded): undo locally.
+    if (rejected) productsStore.set((list) => list.filter((p) => p.id !== saved.id || !!input.id));
+  });
   return saved;
 }
 
@@ -73,12 +70,3 @@ export function deleteProduct(id: string) {
   void removeProduct(id);
 }
 
-export function setLimits(next: UserLimits) {
-  limitsStore.set(next);
-  audit("limits", "level-0");
-  void pushLimits(next);
-}
-
-export function limitsFor(l: UserLimits, marketplace: MarketplaceId): Limits {
-  return marketplace === "uzum" ? { ...l.usd, ...l.uzs } : l.usd;
-}

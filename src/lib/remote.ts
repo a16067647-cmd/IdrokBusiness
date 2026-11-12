@@ -1,7 +1,7 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/client";
-import type { AuditEntry, Product, UserLimits } from "@/lib/store/products";
+import type { AuditEntry, Product } from "@/lib/store/products";
 import type { Progress } from "@/lib/lessons/progress";
 
 // Writes to Supabase for the signed-in user. Local stores stay the fast cache;
@@ -50,10 +50,12 @@ export function rowToProduct(r: Row): Product {
 
 const isUuid = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
-export async function pushProduct(p: Product) {
-  const sb = supabase(); if (!sb || !userId || !isUuid(p.id)) return;
+export async function pushProduct(p: Product): Promise<string | null> {
+  const sb = supabase(); if (!sb || !userId || !isUuid(p.id)) return null;
   const { error } = await sb.from("products").upsert({ ...productToRow(p), user_id: userId });
+  if (error?.message?.includes("LEVEL_RULE")) return error.message;
   report("products", error);
+  return null;
 }
 
 export async function removeProduct(id: string) {
@@ -68,29 +70,22 @@ export async function pushLesson(lessonId: string, day: string) {
   report("lessons", error);
 }
 
-export async function pushLimits(l: UserLimits) {
-  const sb = supabase(); if (!sb || !userId) return;
-  const { error } = await sb.from("user_limits").upsert({ user_id: userId, data: l, updated_at: new Date().toISOString() });
-  report("limits", error);
-}
-
 export async function pushAudit(e: AuditEntry) {
   const sb = supabase(); if (!sb || !userId) return;
   const { error } = await sb.from("audit_log").insert({ user_id: userId, at: e.at, action: e.action, subject: e.subject.slice(0, 200), detail: e.detail?.slice(0, 1000) ?? null });
   report("audit", error);
 }
 
-export interface RemoteSnapshot { products: Product[]; lessons: Progress; limits: UserLimits | null }
+export interface RemoteSnapshot { products: Product[]; lessons: Progress }
 
 export async function pullAll(): Promise<RemoteSnapshot | null> {
   const sb = supabase(); if (!sb || !userId) return null;
-  const [prod, les, lim] = await Promise.all([
-    sb.from("products").select("*").order("updated_at", { ascending: false }),
-    sb.from("lesson_progress").select("lesson_id, completed_on"),
-    sb.from("user_limits").select("data").maybeSingle(),
+  const [prod, les] = await Promise.all([
+    sb.from("products").select("*").eq("user_id", userId).order("updated_at", { ascending: false }),
+    sb.from("lesson_progress").select("lesson_id, completed_on").eq("user_id", userId),
   ]);
-  if (prod.error || les.error || lim.error) {
-    report("sync", prod.error ?? les.error ?? lim.error);
+  if (prod.error || les.error) {
+    report("sync", prod.error ?? les.error);
     return null;
   }
   const completed: Record<string, string> = {};
@@ -98,6 +93,5 @@ export async function pullAll(): Promise<RemoteSnapshot | null> {
   return {
     products: (prod.data ?? []).map(rowToProduct),
     lessons: { completed },
-    limits: (lim.data?.data as UserLimits | undefined) ?? null,
   };
 }

@@ -1,8 +1,7 @@
 // Lesson unlocking and daily streak rules. Pure functions, tested in tests/progress.test.ts.
 //
 // Rules:
-// - Lessons open in order. The first lesson is always open.
-// - A lesson opens on the day AFTER the previous lesson was finished (one new lesson per day).
+// - Every lesson is open from the start; there is no waiting between lessons.
 // - A day counts for the streak when at least one lesson was finished that day.
 // - One "freeze" per calendar week (Mon–Sun) covers one missed day inside a streak.
 // - Streaks unlock nothing but lessons; levels unlock only on verified profit + guardian approval.
@@ -14,7 +13,7 @@ export interface Progress {
   completed: Record<string, DayKey>;
 }
 
-export type LessonState = "done" | "open" | "tomorrow" | "locked";
+export type LessonState = "done" | "open";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -40,14 +39,8 @@ export function weekStart(k: DayKey): DayKey {
   return addDays(k, -dow);
 }
 
-export function lessonStates(ids: string[], p: Progress, today: DayKey): LessonState[] {
-  return ids.map((id, i) => {
-    if (p.completed[id]) return "done";
-    if (i === 0) return "open";
-    const prev = p.completed[ids[i - 1]];
-    if (!prev) return "locked";
-    return prev < today ? "open" : "tomorrow";
-  });
+export function lessonStates(ids: string[], p: Progress): LessonState[] {
+  return ids.map((id) => (p.completed[id] ? "done" : "open"));
 }
 
 export type DayStatus = "done" | "freeze" | "missed" | "today" | "future";

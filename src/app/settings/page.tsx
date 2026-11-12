@@ -17,7 +17,7 @@ function Row({ title, hint, children }: { title: string; hint?: string; children
 
 export default function SettingsPage() {
   const { t, lang, setLang, theme, setTheme, motion, setMotion, sound, setSound, replayIntro } = usePrefs();
-  const { session, fullName, email, syncError, signOut } = useAuth();
+  const { session, fullName, email, syncError, signOut, profile } = useAuth();
   return (
     <div data-motion-preset="dashboard" className="pt-6">
       <h1 className="mb-5 text-[30px] font-extrabold tracking-[-0.03em]">{t("settings.title")}</h1>
@@ -33,6 +33,9 @@ export default function SettingsPage() {
             </div>
             <button type="button" className="btn btn-sm bg-track text-fg" onClick={() => void signOut()}>{t("account.signout")}</button>
           </div>
+          {profile?.isAdmin && (
+            <a href="/admin" className="btn btn-primary btn-sm mt-3.5"><Icon name="shield" size={16} />{t("admin.link")}</a>
+          )}
           <p className={`mb-0 mt-3 flex items-center gap-2 text-[13px] ${syncError ? "text-warn-fg" : "text-success-fg"}`}>
             <Icon name={syncError ? "shield" : "check"} size={15} />{syncError ? t("account.syncError") : t("account.synced")}
           </p>
