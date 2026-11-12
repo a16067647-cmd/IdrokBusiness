@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { usePrefs } from "@/components/providers/PrefsProvider";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Icon } from "@/components/ui/Icon";
 import { Segmented } from "@/components/ui/Glass";
 import { NAV, isActive } from "./nav";
@@ -12,6 +13,15 @@ import type { Lang } from "@/lib/i18n";
 export function AppShell({ children }: { children: ReactNode }) {
   const { t, lang, setLang } = usePrefs();
   const pathname = usePathname();
+  const router = useRouter();
+  const { configured, loading, session } = useAuth();
+  const onAuthPage = pathname.startsWith("/auth");
+  // Signed-out users only see the sign-in screen (when sign-in is configured).
+  const blocked = configured && !session && !onAuthPage;
+  useEffect(() => {
+    if (!loading && blocked) router.replace("/auth");
+  }, [loading, blocked, router]);
+  const showNav = !onAuthPage && !blocked;
 
   // Liquid-glass sheen follows the pointer across any .glass surface.
   useEffect(() => {
@@ -40,22 +50,22 @@ export function AppShell({ children }: { children: ReactNode }) {
               </span>
               <span className="truncate">Idrok <span className="text-[13px] font-semibold tracking-normal text-fg2">Business</span></span>
             </Link>
-            <nav aria-label={t("nav.menu")} className="hidden items-center gap-1 md:flex">
+            {showNav && <nav aria-label={t("nav.menu")} className="hidden items-center gap-1 md:flex">
               {NAV.map((n) => (
                 <Link key={n.href} href={n.href} aria-current={isActive(pathname, n.href) ? "page" : undefined}
                   className={`rounded-xl px-3 py-2 text-[13px] font-semibold transition-colors duration-200 ${isActive(pathname, n.href) ? "bg-soft-blue text-primary" : "text-fg2 hover:text-fg"}`}>
                   {t(n.label)}
                 </Link>
               ))}
-            </nav>
+            </nav>}
             <Segmented<Lang> label={t("settings.language")} value={lang} onChange={setLang}
               options={[{ value: "uz", label: "UZ" }, { value: "ru", label: "RU" }]} />
           </div>
         </header>
-        <main>{children}</main>
+        <main>{blocked ? <div className="min-h-[70vh]" /> : children}</main>
       </div>
 
-      <nav aria-label={t("nav.menu")} className="glass fixed left-1/2 z-[6] grid -translate-x-1/2 grid-cols-5 gap-0.5 rounded-[26px] p-1.5 md:hidden"
+      {showNav && <nav aria-label={t("nav.menu")} className="glass fixed left-1/2 z-[6] grid -translate-x-1/2 grid-cols-5 gap-0.5 rounded-[26px] p-1.5 md:hidden"
         style={{ bottom: "calc(14px + env(safe-area-inset-bottom, 0px))", width: "min(480px, calc(100% - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)))" }}>
         {NAV.map((n) => {
           const active = isActive(pathname, n.href);
@@ -67,7 +77,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
           );
         })}
-      </nav>
+      </nav>}
     </>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { usePrefs, type ThemePref } from "@/components/providers/PrefsProvider";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Card, Segmented } from "@/components/ui/Glass";
 import { Icon } from "@/components/ui/Icon";
 import type { Lang } from "@/lib/i18n";
@@ -16,9 +17,27 @@ function Row({ title, hint, children }: { title: string; hint?: string; children
 
 export default function SettingsPage() {
   const { t, lang, setLang, theme, setTheme, motion, setMotion, sound, setSound, replayIntro } = usePrefs();
+  const { session, fullName, email, syncError, signOut } = useAuth();
   return (
     <div data-motion-preset="dashboard" className="pt-6">
       <h1 className="mb-5 text-[30px] font-extrabold tracking-[-0.03em]">{t("settings.title")}</h1>
+      {session && (
+        <Card className="mb-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="grid h-11 w-11 flex-none place-items-center rounded-full bg-soft-blue text-base font-extrabold text-primary">{(fullName || email).slice(0, 1).toUpperCase()}</span>
+              <div className="min-w-0">
+                <div className="truncate text-[15px] font-semibold">{fullName || t("account.title")}</div>
+                <div className="truncate text-[13px] text-fg2">{email}</div>
+              </div>
+            </div>
+            <button type="button" className="btn btn-sm bg-track text-fg" onClick={() => void signOut()}>{t("account.signout")}</button>
+          </div>
+          <p className={`mb-0 mt-3 flex items-center gap-2 text-[13px] ${syncError ? "text-warn-fg" : "text-success-fg"}`}>
+            <Icon name={syncError ? "shield" : "check"} size={15} />{syncError ? t("account.syncError") : t("account.synced")}
+          </p>
+        </Card>
+      )}
       <Card className="mb-3.5 p-0">
         <Row title={t("settings.language")}>
           <Segmented<Lang> label={t("settings.language")} value={lang} onChange={setLang}
