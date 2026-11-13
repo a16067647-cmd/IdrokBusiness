@@ -5,7 +5,7 @@
  * Keep this false until the founders confirm the same support applies to
  * Idrok Business; switching it to true shows the supporter section and logo.
  */
-export const SHOW_SUPPORTER = false;
+export const SHOW_SUPPORTER = true;
 
 export const TEAM = [
   { photo: "/team/bexruz.jpg", name: "Mamajonov Bexruz", role: "about.role.founder" },

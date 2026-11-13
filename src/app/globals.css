@@ -20,8 +20,8 @@
   --primary-top: #3b8cff;
   --primary-deep: #0a5ce0;
   --soft-blue: #e6f0ff;
-  --ai: #5856d6;
-  --ai-soft: #eeedff;
+  --ai: #0e7490;
+  --ai-soft: #e0f4f8;
   --success: #34c759;
   --success-soft: #e9f9ef;
   --success-fg: #1e8e45;
@@ -57,8 +57,8 @@
   --fg-2: #98a2b8;
   --fg-3: #6a748a;
   --soft-blue: rgba(59, 140, 255, 0.18);
-  --ai: #8b84ff;
-  --ai-soft: rgba(139, 107, 255, 0.18);
+  --ai: #5fd3e8;
+  --ai-soft: rgba(34, 211, 238, 0.15);
   --success-soft: rgba(52, 199, 89, 0.15);
   --success-fg: #5fdc84;
   --warn-soft: rgba(255, 149, 0, 0.14);
