@@ -7,7 +7,7 @@ import { usePrefs } from "@/components/providers/PrefsProvider";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Icon } from "@/components/ui/Icon";
 import { Segmented } from "@/components/ui/Glass";
-import { NAV, isActive } from "./nav";
+import { FOCUS_PAGES, NAV, isActive } from "./nav";
 import type { Lang } from "@/lib/i18n";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -24,6 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (!loading && blocked) router.replace("/auth");
   }, [loading, blocked, router]);
   const showNav = !onAuthPage && !blocked && !(configured && !session);
+  const showTabs = showNav && !FOCUS_PAGES.includes(pathname);
 
   // Liquid-glass sheen follows the pointer across any .glass surface.
   useEffect(() => {
@@ -55,17 +56,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
             {showNav && <nav aria-label={t("nav.menu")} className="hidden items-center gap-1 md:flex">
               {NAV.map((n) => (
-                <Link key={n.href} href={n.href} aria-current={isActive(pathname, n.href) ? "page" : undefined}
-                  className={`rounded-xl px-3 py-2 text-[13px] font-semibold transition-colors duration-200 ${isActive(pathname, n.href) ? "bg-soft-blue text-primary" : "text-fg2 hover:text-fg"}`}>
+                <Link key={n.href} href={n.href} aria-current={isActive(pathname, n) ? "page" : undefined}
+                  className={`rounded-xl px-3 py-2 text-[14px] font-semibold transition-colors duration-200 ${isActive(pathname, n) ? "bg-soft-blue text-primary" : "text-fg2 hover:text-fg"}`}>
                   {t(n.label)}
                 </Link>
               ))}
-              {profile?.isAdmin && (
-                <Link href="/admin" aria-current={pathname.startsWith("/admin") ? "page" : undefined}
-                  className={`rounded-xl px-3 py-2 text-[13px] font-semibold transition-colors duration-200 ${pathname.startsWith("/admin") ? "bg-ai-soft text-ai" : "text-ai hover:opacity-80"}`}>
-                  {t("admin.link")}
-                </Link>
-              )}
             </nav>}
             <Segmented<Lang> label={t("settings.language")} value={lang} onChange={setLang}
               options={[{ value: "uz", label: "UZ" }, { value: "ru", label: "RU" }]} />
@@ -74,14 +69,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main>{blocked ? <div className="min-h-[70vh]" /> : children}</main>
       </div>
 
-      {showNav && <nav aria-label={t("nav.menu")} className="glass fixed left-1/2 z-[6] grid -translate-x-1/2 grid-cols-5 gap-0.5 rounded-[26px] p-1.5 md:hidden"
+      {showTabs && <nav aria-label={t("nav.menu")} className="glass fixed left-1/2 z-[6] grid -translate-x-1/2 grid-cols-3 gap-1 rounded-[26px] p-1.5 md:hidden"
         style={{ bottom: "calc(14px + env(safe-area-inset-bottom, 0px))", width: "min(480px, calc(100% - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)))" }}>
         {NAV.map((n) => {
-          const active = isActive(pathname, n.href);
+          const active = isActive(pathname, n);
           return (
             <Link key={n.href} href={n.href} aria-current={active ? "page" : undefined}
-              className={`grid min-w-0 justify-items-center gap-[3px] rounded-[20px] px-0.5 py-2 text-[11px] font-semibold leading-tight transition-colors duration-200 active:scale-[0.96] ${active ? "bg-soft-blue text-primary" : "text-fg2"}`}>
-              <Icon name={n.icon} />
+              className={`grid min-w-0 justify-items-center gap-1 rounded-[20px] px-1 py-2.5 text-[13px] font-bold leading-tight transition-colors duration-200 active:scale-[0.96] ${active ? "bg-soft-blue text-primary" : "text-fg2"}`}>
+              <Icon name={n.icon} size={24} />
               <span className="max-w-full truncate">{t(n.label)}</span>
             </Link>
           );
