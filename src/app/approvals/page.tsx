@@ -14,7 +14,7 @@ import type { MessageKey } from "@/lib/i18n";
 type Status = "pending" | "approved" | "rejected" | "expired";
 interface Approval {
   id: string; product_id: string; action: "sample" | "order"; supplier: string; quantity: number; max_spend: number;
-  currency: "USD" | "UZS"; shipping: string; risks: string; status: Status; guardian_name: string | null;
+  currency: "USD" | "UZS"; shipping: string; risks: string; status: Status; approver_name: string | null;
   decision_note: string | null; expires_at: string; decided_at: string | null; created_at: string;
 }
 const TONE = { pending: "wait", approved: "ok", rejected: "danger", expired: "muted" } as const;
@@ -31,8 +31,8 @@ export default function ApprovalsPage() {
 
   const [f, setF] = useState({ productId: "", action: "sample" as "sample" | "order", supplier: "", quantity: "", maxSpend: "", shipping: "", risks: "", days: "14" });
   const [deciding, setDeciding] = useState<string | null>(null);
-  const [guardian, setGuardian] = useState("");
-  const [guardianOk, setGuardianOk] = useState(false);
+  const [approver, setApprover] = useState("");
+  const [checked, setChecked] = useState(false);
   const [reason, setReason] = useState("");
 
   const load = useCallback(async () => {
@@ -80,15 +80,15 @@ export default function ApprovalsPage() {
 
   const decide = async (a: Approval, approve: boolean) => {
     const patch = approve
-      ? { status: "approved", guardian_name: guardian.trim().slice(0, 80), decided_at: new Date().toISOString() }
+      ? { status: "approved", approver_name: approver.trim().slice(0, 80), decided_at: new Date().toISOString() }
       : { status: "rejected", decision_note: reason.trim().slice(0, 500), decided_at: new Date().toISOString() };
     const { error } = await supabase()!.from("approvals").update(patch).eq("id", a.id);
     if (error) { setMsg({ tone: "err", text: t("appr.err", { msg: error.message }) }); return; }
     const p = products.find((x) => x.id === a.product_id);
     if (!approve && p) saveProduct({ ...p, status: "rejected", rejectReason: reason.trim().slice(0, 500) }); // remembered by the AI
-    audit("status", `approval:${p?.name ?? a.product_id}`, approve ? `approved by ${guardian.trim()}` : `rejected: ${reason.trim()}`);
+    audit("status", `approval:${p?.name ?? a.product_id}`, approve ? `approved by ${approver.trim()}` : `rejected: ${reason.trim()}`);
     setMsg(approve ? { tone: "ok", text: t("appr.afterApprove") } : null);
-    setDeciding(null); setGuardian(""); setGuardianOk(false); setReason("");
+    setDeciding(null); setApprover(""); setChecked(false); setReason("");
     await load();
   };
 
@@ -158,22 +158,22 @@ export default function ApprovalsPage() {
                 </dl>
                 {a.shipping && <p className="mb-0 mt-2 text-[13px] text-fg2">{t("appr.shipping")}: {a.shipping}</p>}
                 {a.risks && <p className="mb-0 mt-1 text-[13px] text-fg2">{t("appr.risks")}: {a.risks}</p>}
-                {st === "approved" && a.guardian_name && <p className="mb-0 mt-2 text-[13px] font-semibold text-success-fg">{t("appr.approvedBy", { name: a.guardian_name })}</p>}
+                {st === "approved" && a.approver_name && <p className="mb-0 mt-2 text-[13px] font-semibold text-success-fg">{t("appr.approvedBy", { name: a.approver_name })}</p>}
                 {st === "rejected" && a.decision_note && <p className="mb-0 mt-2 text-[13px] text-danger-fg">{a.decision_note}</p>}
                 {st === "expired" && <p className="mb-0 mt-2 text-[13px] text-fg3">{t("appr.expiredNote")}</p>}
 
                 {st === "pending" && (deciding === a.id ? (
                   <div className="mt-4 grid gap-3 rounded-2xl bg-track p-4">
-                    <label className="grid gap-1.5"><span className="text-[13px] font-semibold text-fg2">{t("appr.guardian")}</span>
-                      <input id={`ap-g-${a.id}`} className="field" maxLength={80} value={guardian} onChange={(e) => setGuardian(e.target.value)} /></label>
-                    <label className="flex items-start gap-3 text-sm"><input type="checkbox" checked={guardianOk} onChange={(e) => setGuardianOk(e.target.checked)} className="mt-0.5 h-5 w-5 flex-none accent-[var(--primary)]" />{t("appr.guardianCheck")}</label>
-                    <button type="button" className="btn btn-primary btn-sm" disabled={!guardian.trim() || !guardianOk} onClick={() => void decide(a, true)}><Icon name="check" size={16} />{t("appr.approve")}</button>
+                    <label className="grid gap-1.5"><span className="text-[13px] font-semibold text-fg2">{t("appr.approver")}</span>
+                      <input id={`ap-approver-${a.id}`} className="field" maxLength={80} value={approver} onChange={(e) => setApprover(e.target.value)} /></label>
+                    <label className="flex items-start gap-3 text-sm"><input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} className="mt-0.5 h-5 w-5 flex-none accent-[var(--primary)]" />{t("appr.confirmCheck")}</label>
+                    <button type="button" className="btn btn-primary btn-sm" disabled={!approver.trim() || !checked} onClick={() => void decide(a, true)}><Icon name="check" size={16} />{t("appr.approve")}</button>
                     <label className="grid gap-1.5"><span className="text-[13px] font-semibold text-fg2">{t("appr.rejectReason")}</span>
                       <input id={`ap-r-${a.id}`} className="field" maxLength={500} value={reason} onChange={(e) => setReason(e.target.value)} /></label>
                     <button type="button" className="btn btn-sm bg-danger-soft text-danger-fg" disabled={!reason.trim()} onClick={() => void decide(a, false)}>{t("appr.reject")}</button>
                   </div>
                 ) : (
-                  <button type="button" className="btn btn-sm mt-4 bg-track text-fg" onClick={() => { setDeciding(a.id); setGuardian(""); setGuardianOk(false); setReason(""); }}>{t("appr.approve")} / {t("appr.reject")}</button>
+                  <button type="button" className="btn btn-sm mt-4 bg-track text-fg" onClick={() => { setDeciding(a.id); setApprover(profile?.fullName ?? ""); setChecked(false); setReason(""); }}>{t("appr.approve")} / {t("appr.reject")}</button>
                 ))}
               </Card>
             );
