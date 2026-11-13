@@ -301,6 +301,20 @@ export const uz = {
   "admin.invalid": "Tekshiring: {what}",
   "admin.badJson": "sxema JSON noto'g'ri",
   "admin.needQuiz": "oxirgi slayd savol bo'lishi kerak",
+
+  "about.title": "Biz haqimizda",
+  "about.updated": "Yangilangan: 13-noyabr, 2026",
+  "about.what.h": "Idrok Business nima",
+  "about.what.p": "Idrok Business — Amazon va Uzum Market’da sotishni boshlayotganlar uchun biznes ilova. U mahsulot g‘oyalaringiz, xarajatlaringiz va foydangizni hisoblaydi, daraja qoidalari bilan xavfsiz boshlashga yordam beradi va amaliy darslar orqali o‘rgatadi. Marketpleys hisoblari ulangach, savdolar ham shu yerda kuzatiladi.",
+  "about.goal.h": "Maqsadimiz",
+  "about.goal.p": "Har bir tadbirkor qarorlarini taxminga emas, o‘z raqamlariga tayanib qabul qila olishi.",
+  "about.team.h": "Jamoa",
+  "about.role.founder": "Asoschi",
+  "about.role.cofounder": "Hammuassis",
+  "about.supporter.h": "Qo‘llab-quvvatlovchi",
+  "about.supporter.p": "Idrok Business loyihasi Kelajak Markazlari tomonidan qo‘llab-quvvatlangan va moliyalashtirilgan. Ularning yordami uchun chin dildan minnatdormiz!",
+  "about.contact.h": "Aloqa",
+  "about.link": "Biz haqimizda",
 } as const;
 
 export type MessageKey = keyof typeof uz;

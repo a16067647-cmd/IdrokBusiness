@@ -1,0 +1,24 @@
+/* Same structure and spacing as Idrok Academy's About page, in this app's theme colours. */
+.wrap { max-width: 720px; margin: 0 auto; padding: 32px 4px 60px; }
+.card {
+  background: var(--solid);
+  border-radius: 20px;
+  padding: 28px 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  color: var(--fg);
+}
+.h1 { margin: 0 0 4px; font-size: 28px; font-weight: 800; line-height: 1.2; }
+.h2 { margin: 24px 0 6px; font-size: 18px; font-weight: 700; }
+.p { margin: 6px 0; font-size: 16px; line-height: 1.6; overflow-wrap: anywhere; }
+.muted { color: var(--fg-3); font-size: 14px; }
+.card a { color: var(--primary); text-decoration: none; }
+.card a:hover { text-decoration: underline; }
+.team { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin: 12px 0; }
+.member { text-align: center; min-width: 0; }
+.member b { display: block; font-size: 16px; }
+.member span { color: var(--fg-3); font-size: 14px; }
+.photo { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 18px; margin-bottom: 8px; }
+.partner { display: block; width: 180px; height: auto; border-radius: 18px; margin: 12px 0; }
+@media (max-width: 600px) {
+  .team { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+}

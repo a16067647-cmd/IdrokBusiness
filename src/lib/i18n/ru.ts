@@ -303,4 +303,18 @@ export const ru: Record<MessageKey, string> = {
   "admin.invalid": "Проверьте: {what}",
   "admin.badJson": "неверный JSON схемы",
   "admin.needQuiz": "последний слайд должен быть вопросом",
+
+  "about.title": "О нас",
+  "about.updated": "Обновлено: 13 ноября 2026",
+  "about.what.h": "Что такое Idrok Business",
+  "about.what.p": "Idrok Business — бизнес-приложение для тех, кто начинает продавать на Amazon и Uzum Market. Оно считает ваши товарные идеи, расходы и прибыль, помогает начать безопасно с правилами уровней и обучает практическими уроками. После подключения аккаунтов маркетплейсов здесь же будут видны продажи.",
+  "about.goal.h": "Наша цель",
+  "about.goal.p": "Чтобы каждый предприниматель принимал решения на основе своих цифр, а не догадок.",
+  "about.team.h": "Команда",
+  "about.role.founder": "Основатель",
+  "about.role.cofounder": "Сооснователь",
+  "about.supporter.h": "При поддержке",
+  "about.supporter.p": "Проект Idrok Business поддержан и профинансирован Kelajak Markazlari. Искренне благодарим их за помощь!",
+  "about.contact.h": "Контакты",
+  "about.link": "О нас",
 };
