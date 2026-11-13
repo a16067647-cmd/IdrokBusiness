@@ -69,13 +69,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main>{blocked ? <div className="min-h-[70vh]" /> : children}</main>
       </div>
 
-      {showTabs && <nav aria-label={t("nav.menu")} className="glass fixed left-1/2 z-[6] grid -translate-x-1/2 grid-cols-3 gap-1 rounded-[26px] p-1.5 md:hidden"
+      {showTabs && <nav aria-label={t("nav.menu")} className="glass fixed left-1/2 z-[6] grid -translate-x-1/2 grid-cols-4 gap-1 rounded-[26px] p-1.5 md:hidden"
         style={{ bottom: "calc(14px + env(safe-area-inset-bottom, 0px))", width: "min(480px, calc(100% - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)))" }}>
         {NAV.map((n) => {
           const active = isActive(pathname, n);
           return (
             <Link key={n.href} href={n.href} aria-current={active ? "page" : undefined}
-              className={`grid min-w-0 justify-items-center gap-1 rounded-[20px] px-1 py-2.5 text-[13px] font-bold leading-tight transition-colors duration-200 active:scale-[0.96] ${active ? "bg-soft-blue text-primary" : "text-fg2"}`}>
+              className={`grid min-w-0 justify-items-center gap-1 rounded-[20px] px-1 py-2.5 text-[12px] font-bold leading-tight transition-colors duration-200 active:scale-[0.96] ${active ? "bg-soft-blue text-primary" : "text-fg2"}`}>
               <Icon name={n.icon} size={24} />
               <span className="max-w-full truncate">{t(n.label)}</span>
             </Link>

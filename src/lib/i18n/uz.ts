@@ -474,7 +474,7 @@ export const uz = {
   "stats.none": "Hali ma’lumot yo‘q.",
   "stats.approvalsLine": "{approved} tasdiqlangan · {pending} kutilmoqda · {rejected} rad etilgan",
   "nav.path": "Yo‘lim",
-  "nav.ask": "Idrok’dan so‘ra",
+  "nav.ask": "So‘rash",
   "nav.me": "Men",
   "path.hello": "Salom, {name}",
   "path.helloAnon": "Salom!",

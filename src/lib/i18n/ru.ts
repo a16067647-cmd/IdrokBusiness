@@ -476,7 +476,7 @@ export const ru: Record<MessageKey, string> = {
   "stats.none": "Пока нет данных.",
   "stats.approvalsLine": "{approved} одобрено · {pending} ожидает · {rejected} отклонено",
   "nav.path": "Мой путь",
-  "nav.ask": "Спросить Idrok",
+  "nav.ask": "Спросить",
   "nav.me": "Я",
   "path.hello": "Привет, {name}",
   "path.helloAnon": "Привет!",
