@@ -67,6 +67,15 @@ export default function SettingsPage() {
         <span className="flex-1 text-[15px] font-semibold">{t("about.link")}</span>
         <Icon name="chevron" size={18} className="text-fg3" />
       </a>
+      <Card className="mb-3.5 p-0">
+        {([["/privacy", "legal.privacy", "shield"], ["/terms", "legal.terms", "clipboard"], ["/delete-account", "legal.delete", "x"]] as const).map(([href, key, icon]) => (
+          <a key={href} href={href} className="flex items-center gap-3 border-b border-hairline px-5 py-3.5 last:border-b-0">
+            <span className={`grid h-8 w-8 flex-none place-items-center rounded-xl ${href === "/delete-account" ? "bg-danger-soft text-danger-fg" : "bg-track text-fg2"}`}><Icon name={icon} size={16} /></span>
+            <span className={`flex-1 text-[15px] font-semibold ${href === "/delete-account" ? "text-danger-fg" : ""}`}>{t(key)}</span>
+            <Icon name="chevron" size={18} className="text-fg3" />
+          </a>
+        ))}
+      </Card>
       <Card>
         <div className="mb-1.5 flex items-center gap-2.5"><Icon name="shield" size={18} className="text-primary" /><h2 className="m-0 text-[17px] font-bold">{t("settings.about")}</h2></div>
         <p className="m-0 text-sm text-fg2">{t("settings.aboutBody")}</p>

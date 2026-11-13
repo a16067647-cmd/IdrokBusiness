@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePrefs } from "@/components/providers/PrefsProvider";
 import { CONTACT, SHOW_SUPPORTER, TEAM } from "@/lib/about";
 import styles from "./about.module.css";
+import { LegalLinks } from "@/components/legal/LegalLinks";
 
 /** Public "About us" page: /about (Uzbek) and /about?lang=ru (Russian). Works without signing in. */
 export default function AboutPage() {
@@ -53,6 +54,7 @@ export default function AboutPage() {
           <a href={`mailto:${CONTACT.email}`} target="_blank" rel="noreferrer">{CONTACT.email}</a>
         </p>
       </article>
+      <LegalLinks />
     </div>
   );
 }

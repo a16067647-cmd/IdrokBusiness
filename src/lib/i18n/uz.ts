@@ -435,6 +435,24 @@ export const uz = {
   "fin.signin": "Xarajatlarni saqlash uchun hisobingizga kiring.",
   "fin.err": "Saqlab bo‘lmadi: {msg}",
   "fin.link": "Moliya",
+
+  "legal.privacy": "Maxfiylik siyosati",
+  "legal.terms": "Foydalanish shartlari",
+  "legal.delete": "Hisobni o‘chirish",
+  "legal.agree": "Hisob yaratish orqali siz {terms} va {privacy} bilan rozilik bildirasiz.",
+  "del.title": "Hisobni o‘chirish",
+  "del.intro": "Hisobingizni o‘chirsangiz, quyidagilar butunlay va darhol o‘chiriladi. Buni qaytarib bo‘lmaydi.",
+  "del.what1": "Hisob (ism, email, parol)",
+  "del.what2": "Mahsulotlar, xarajatlar va tasdiqlash so‘rovlari",
+  "del.what3": "Darslardagi jarayon va AI tahlillari tarixi",
+  "del.what4": "Faoliyat jurnali",
+  "del.howSignedOut": "Hisobni o‘chirish uchun ilovaga kiring va shu sahifaga qayting, yoki bizga email’ingiz bilan yozing:",
+  "del.signin": "Kirish",
+  "del.button": "Hisobimni o‘chirish",
+  "del.confirmLabel": "Tasdiqlash uchun emailingizni yozing: {email}",
+  "del.confirm": "Butunlay o‘chirish",
+  "del.done": "Hisobingiz va barcha ma’lumotlaringiz o‘chirildi.",
+  "del.error": "O‘chirib bo‘lmadi: {msg}",
 } as const;
 
 export type MessageKey = keyof typeof uz;

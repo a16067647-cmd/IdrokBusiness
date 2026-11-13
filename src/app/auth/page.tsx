@@ -7,6 +7,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { Icon } from "@/components/ui/Icon";
 import { supabase } from "@/lib/supabase/client";
 import type { MessageKey } from "@/lib/i18n";
+import { LegalLinks } from "@/components/legal/LegalLinks";
 
 type Mode = "signin" | "signup" | "reset" | "update" | "check";
 
@@ -143,15 +144,21 @@ export default function AuthPage() {
               {busy ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden /> : t(submitLabel[mode]!)}
             </button>
             {mode === "signin" && <button type="button" className="text-sm font-semibold text-primary" onClick={() => switchMode("reset")}>{t("auth.forgot")}</button>}
+            {mode === "signup" && (
+              <p className="m-0 text-center text-[12px] text-fg3">
+                {t("legal.agree", { terms: "§T", privacy: "§P" }).split(/(§T|§P)/).map((part, i) =>
+                  part === "§T" ? <a key={i} href="/terms" className="text-primary">{t("legal.terms")}</a>
+                  : part === "§P" ? <a key={i} href="/privacy" className="text-primary">{t("legal.privacy")}</a>
+                  : <span key={i}>{part}</span>)}
+              </p>
+            )}
             {(mode === "reset" || mode === "update") && (
               <button type="button" className="inline-flex items-center justify-center gap-1 text-sm font-semibold text-primary" onClick={() => switchMode("signin")}><Icon name="back" size={16} />{t("auth.backToSignin")}</button>
             )}
           </form>
                 )}
       </div>
-      <p className="mt-5 text-center text-[13px] text-fg3">
-        <a href="/about" className="font-semibold text-primary">{t("about.link")}</a>
-      </p>
+      <LegalLinks />
     </div>
   );
 }
