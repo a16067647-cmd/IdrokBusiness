@@ -1,5 +1,5 @@
 // Your own safety rules per level (not Amazon's or Uzum's).
-// Levels unlock only on verified, paid-out net profit plus guardian approval.
+// Levels unlock only on verified, paid-out net profit confirmed by an admin.
 
 export const RESTRICTED_CATEGORIES = ["batteries", "food", "cosmetics", "supplements", "medical"] as const;
 export type RestrictedCategory = (typeof RESTRICTED_CATEGORIES)[number];

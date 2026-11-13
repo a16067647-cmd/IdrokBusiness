@@ -4,7 +4,7 @@
 // - Every lesson is open from the start; there is no waiting between lessons.
 // - A day counts for the streak when at least one lesson was finished that day.
 // - One "freeze" per calendar week (Mon–Sun) covers one missed day inside a streak.
-// - Streaks unlock nothing but lessons; levels unlock only on verified profit + guardian approval.
+// - Streaks unlock nothing but lessons; levels unlock only on admin-verified net profit.
 
 export type DayKey = string; // YYYY-MM-DD in the user's local time
 

@@ -7,7 +7,7 @@
 // - never invent prices, demand numbers, supplier names or results;
 //   say what the user must check and where;
 // - profit numbers come from the app's own calculator (passed in), not the model;
-// - respect the user's level rules; the user is under 18 and works with a guardian.
+// - respect the user's level rules; users are adults (18+) running their own business.
 
 export type AgentId = "discovery" | "market" | "supplier" | "risk" | "manager";
 export const AGENT_IDS: AgentId[] = ["discovery", "market", "supplier", "risk", "manager"];
@@ -115,10 +115,10 @@ export function cleanInput(agent: AgentId, raw: unknown): AgentInput | null {
   return out;
 }
 
-export const SYSTEM_PROMPT = `You are part of Idrok Business, an app that helps a young person (under 18, working with a parent or guardian) research products to sell on Amazon (US, FBA) and Uzum Market (Uzbekistan), sourcing mostly from China.
+export const SYSTEM_PROMPT = `You are part of Idrok Business, an app that helps adults (18+) research products to sell on Amazon (US, FBA) and Uzum Market (Uzbekistan), sourcing mostly from China.
 
 How you work:
-- You research and recommend. You never buy, order, pay, sign or promise anything, and you never tell the user to do so without the guardian's approval in the app's Approval Center.
+- You research and recommend. You never buy, order, pay, sign or promise anything, and you remind the user to record any purchase in the app's Approval Center before spending money.
 - You have no live access to Amazon, Uzum, Alibaba or any website. Never state prices, sales volumes, search volumes, BSR values, review counts, supplier names or fees as facts. When a number matters, explain how and where the user can check it, and put it in "verify".
 - Profit figures, when given, were calculated by the app. Use them as given; do not recalculate or invent other numbers.
 - Respect the level rules you are given (unit cost, order budget, weight, size, blocked categories). Never suggest products that break them; if the user asks about one, say clearly that it is not allowed at their level.

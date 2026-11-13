@@ -30,7 +30,7 @@ export default function AuthPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [guardian, setGuardian] = useState(false);
+  const [adult, setAdult] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<MessageKey | null>(null);
 
@@ -57,7 +57,7 @@ export default function AuthPage() {
     const mail = email.trim();
     if (mode === "signup") {
       if (!name.trim()) return setError("auth.err.name");
-      if (!guardian) return setError("auth.err.guardian");
+      if (!adult) return setError("auth.err.adult");
     }
     if ((mode === "signup" || mode === "update") && password.length < 8) return setError("auth.err.weak");
 
@@ -69,7 +69,7 @@ export default function AuthPage() {
       } else if (mode === "signup") {
         const { data, error: err } = await sb.auth.signUp({
           email: mail, password,
-          options: { emailRedirectTo: `${window.location.origin}/`, data: { full_name: name.trim().slice(0, 80), guardian_acknowledged: true } },
+          options: { emailRedirectTo: `${window.location.origin}/`, data: { full_name: name.trim().slice(0, 80), adult_confirmed: true } },
         });
         if (err) setError(errorKey(err.message));
         else if (!data.session) setMode("check");
@@ -135,8 +135,8 @@ export default function AuthPage() {
             )}
             {mode === "signup" && (
               <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-track p-3.5 text-sm">
-                <input id="a-guardian" type="checkbox" checked={guardian} onChange={(e) => setGuardian(e.target.checked)} className="mt-0.5 h-5 w-5 flex-none accent-[var(--primary)]" />
-                <span>{t("auth.guardian")}</span>
+                <input id="a-adult" type="checkbox" checked={adult} onChange={(e) => setAdult(e.target.checked)} className="mt-0.5 h-5 w-5 flex-none accent-[var(--primary)]" />
+                <span>{t("auth.adult")}</span>
               </label>
             )}
             {error && <p role="alert" className="m-0 rounded-2xl bg-danger-soft p-3 text-sm text-danger-fg">{t(error)}</p>}
