@@ -453,6 +453,26 @@ export const uz = {
   "del.confirm": "Butunlay o‘chirish",
   "del.done": "Hisobingiz va barcha ma’lumotlaringiz o‘chirildi.",
   "del.error": "O‘chirib bo‘lmadi: {msg}",
+
+  "admin.stats": "Statistika",
+  "stats.users": "Foydalanuvchilar",
+  "stats.active": "Faol (7 kun)",
+  "stats.products": "Mahsulotlar",
+  "stats.lessons": "Tugatilgan darslar",
+  "stats.ai": "AI so‘rovlari",
+  "stats.approvals": "Tasdiqlashlar",
+  "stats.expenses": "Xarajat yozuvlari",
+  "stats.week": "+{n} shu hafta",
+  "stats.withProducts": "{n} kishi mahsulot qo‘shgan",
+  "stats.learners": "{n} kishi o‘qiyapti",
+  "stats.signups": "Ro‘yxatdan o‘tish, oxirgi 30 kun",
+  "stats.signupsTip": "{date}: {n}",
+  "stats.table": "Jadval ko‘rinishi",
+  "stats.day": "Kun",
+  "stats.count": "Soni",
+  "stats.topLessons": "Eng ko‘p tugatilgan darslar",
+  "stats.none": "Hali ma’lumot yo‘q.",
+  "stats.approvalsLine": "{approved} tasdiqlangan · {pending} kutilmoqda · {rejected} rad etilgan",
 } as const;
 
 export type MessageKey = keyof typeof uz;

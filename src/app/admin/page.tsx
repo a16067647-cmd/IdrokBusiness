@@ -8,17 +8,18 @@ import { Icon } from "@/components/ui/Icon";
 import { UsersTab } from "./UsersTab";
 import { LevelsTab } from "./LevelsTab";
 import { LessonsTab } from "./LessonsTab";
+import { StatsTab } from "./StatsTab";
 
-type Tab = "users" | "levels" | "lessons";
+type Tab = "stats" | "users" | "levels" | "lessons";
 
 export default function AdminPage() {
   const { t } = usePrefs();
   const { profile, loading } = useAuth();
-  const [tab, setTab] = useState<Tab>("users");
+  const [tab, setTab] = useState<Tab>("stats");
 
   useEffect(() => {
     const h = window.location.hash.slice(1);
-    if (h === "users" || h === "levels" || h === "lessons") setTab(h);
+    if (h === "stats" || h === "users" || h === "levels" || h === "lessons") setTab(h);
   }, []);
   const choose = (v: Tab) => { setTab(v); history.replaceState(null, "", `#${v}`); };
 
@@ -40,9 +41,12 @@ export default function AdminPage() {
     <div data-motion-preset="dashboard" className="pt-6">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <h1 className="m-0 flex items-center gap-2.5 text-[30px] font-extrabold tracking-[-0.03em]"><Icon name="shield" size={26} className="text-primary" />{t("admin.title")}</h1>
-        <Segmented<Tab> label={t("admin.title")} value={tab} onChange={choose}
-          options={[{ value: "users", label: t("admin.users") }, { value: "levels", label: t("admin.levels") }, { value: "lessons", label: t("admin.lessons") }]} />
+        <div className="-mx-1 max-w-full overflow-x-auto px-1 pb-1">
+          <Segmented<Tab> label={t("admin.title")} value={tab} onChange={choose} className="whitespace-nowrap"
+            options={[{ value: "stats", label: t("admin.stats") }, { value: "users", label: t("admin.users") }, { value: "levels", label: t("admin.levels") }, { value: "lessons", label: t("admin.lessons") }]} />
+        </div>
       </div>
+      {tab === "stats" && <StatsTab />}
       {tab === "users" && <UsersTab />}
       {tab === "levels" && <LevelsTab />}
       {tab === "lessons" && <LessonsTab />}
