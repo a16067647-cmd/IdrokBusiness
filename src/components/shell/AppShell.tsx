@@ -17,7 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { configured, loading, session, profile } = useAuth();
   const onAuthPage = pathname.startsWith("/auth");
   // Pages anyone can open without signing in (shareable links).
-  const isPublic = onAuthPage || pathname === "/about";
+  const isPublic = onAuthPage || ["/about", "/privacy", "/terms", "/delete-account"].includes(pathname);
   // Signed-out users only see the sign-in screen and public pages (when sign-in is configured).
   const blocked = configured && !session && !isPublic;
   useEffect(() => {

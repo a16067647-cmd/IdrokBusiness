@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Type-check
+        run: npx tsc --noEmit
+      - name: Unit tests
+        run: npm test
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+          # Public values (safe in the browser); the build needs them to bundle the sign-in code.
+          NEXT_PUBLIC_SUPABASE_URL: https://ilrukvovhrupfpxkkbjo.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_KT3f-UKt9o9BUCTWX0_ebw_Aox8pBkd
