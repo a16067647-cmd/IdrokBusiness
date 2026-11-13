@@ -36,6 +36,7 @@ export default function ProductsPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           <a href="/approvals" className="btn glass text-fg"><Icon name="shield" size={18} />{t("appr.link")}</a>
+          <a href="/finance" className="btn glass text-fg"><Icon name="calc" size={18} />{t("fin.link")}</a>
           <button type="button" className="btn btn-primary" onClick={() => openEditor()}><Icon name="plus" size={18} />{t("products.add")}</button>
         </div>
       </div>
