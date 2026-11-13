@@ -576,6 +576,17 @@ export const uz = {
   "me.m.aboutD": "Jamoa va aloqa",
   "me.m.admin": "Admin panel",
   "me.m.adminD": "Foydalanuvchilar va darslar",
+  "path.start": "Start",
+  "path.finish": "Marra",
+  "path.round": "{n}-yo‘l",
+  "cel.title": "Tabriklaymiz!",
+  "cel.done": "«{step}» bajarildi",
+  "cel.next": "Keyingi qadam: {step}",
+  "cel.continue": "Davom etish",
+  "pfin.title": "Siz marraga yetdingiz!",
+  "pfin.body": "Birinchi foydangiz tasdiqlandi. Bu katta qadam! Endi yo‘lni keyingi mahsulot bilan yana bosib o‘ting.",
+  "pfin.again": "Keyingi mahsulot bilan boshlash",
+  "pfin.later": "Keyinroq",
 } as const;
 
 export type MessageKey = keyof typeof uz;

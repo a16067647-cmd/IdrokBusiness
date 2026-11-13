@@ -13,6 +13,7 @@ import { rulesFor, toLimits, useLevels } from "@/lib/levels";
 import { saveProduct } from "@/lib/store/products";
 import { verdictFor, type Verdict } from "@/lib/verdict";
 import { money } from "@/lib/format";
+import { sfx } from "@/lib/sfx";
 import type { MarketplaceId } from "@/lib/marketplaces";
 import type { MessageKey } from "@/lib/i18n";
 
@@ -113,6 +114,7 @@ export default function CheckPage() {
     const blocked = violations.length > 0;
     const save = () => {
       if (blocked || saved) return;
+      sfx.next(); // also unlocks audio so the path can cheer when you get back
       saveProduct({ name: name.trim().slice(0, 120), marketplace: mk, status: "idea", restricted: [], ...nums });
       setSaved(true);
       setTimeout(() => router.push("/"), 700);
