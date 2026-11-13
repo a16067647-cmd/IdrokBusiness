@@ -72,11 +72,11 @@ export default function AgentsPage() {
 
       {!active ? (
         <>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3">
             {AGENT_IDS.map((a) => (
               <button key={a} type="button" onClick={() => open(a)} className="glass flex items-start gap-3.5 rounded-card p-5 text-left transition-transform active:scale-[0.98]">
                 <span className="grid h-11 w-11 flex-none place-items-center rounded-2xl bg-soft-blue text-primary"><Icon name={ICONS[a]} size={20} /></span>
-                <span className="min-w-0"><b className="block text-[16px]">{t(`agent.${a}.name` as MessageKey)}</b><span className="text-[13px] text-fg2">{t(`agent.${a}.desc` as MessageKey)}</span></span>
+                <span className="min-w-0"><b className="block text-[18px]">{t(`agent.${a}.name` as MessageKey)}</b><span className="text-[13px] text-fg2">{t(`agent.${a}.desc` as MessageKey)}</span></span>
               </button>
             ))}
           </div>
