@@ -29,7 +29,8 @@ export default function HomePage() {
       </section>
 
       <section data-motion-preset="dashboard" className="py-7" aria-labelledby="h-summary">
-        <SectionHead id="h-summary" title={t("home.summary")} hint={t("home.summaryHint")} />
+        <SectionHead id="h-summary" title={t("home.summary")}
+          action={<Link href="/finance" className="inline-flex items-center gap-1 text-sm font-semibold text-primary">{t("fin.link")}<Icon name="chevron" size={16} /></Link>} />
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
           {METRICS.map((k) => (
             <Card key={k}>
