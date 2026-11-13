@@ -4,9 +4,10 @@ import type { MessageKey } from "@/lib/i18n";
 /** `also`: other pages that belong to this tab (opened from it), so the tab stays lit. */
 export interface NavItem { href: string; label: MessageKey; icon: IconName; also?: string[] }
 
-// Three tabs only. Everything advanced lives under "Me → More".
+// Four tabs only. Everything advanced lives under "Me → More".
 export const NAV: NavItem[] = [
-  { href: "/", label: "nav.path", icon: "home", also: ["/check", "/learn"] },
+  { href: "/", label: "nav.path", icon: "home", also: ["/check"] },
+  { href: "/learn", label: "nav.learn", icon: "book" },
   { href: "/agents", label: "nav.ask", icon: "sparkle" },
   { href: "/me", label: "nav.me", icon: "user", also: ["/products", "/finance", "/approvals", "/settings", "/markets", "/admin"] },
 ];
