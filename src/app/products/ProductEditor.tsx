@@ -137,6 +137,13 @@ export function ProductEditor({ product, open, onClose }: { product?: Product; o
         <ViolationList violations={violations} marketplace={f.marketplace} />
         {violations.length > 0 && <p className="-mt-2 mb-0 text-[13px] font-semibold text-danger-fg">{t("viol.blockSave", { n: level })}</p>}
 
+        {product && (
+          <div className="flex flex-wrap gap-2">
+            <a href={`/agents?agent=risk&product=${encodeURIComponent(product.name)}`} className="btn btn-sm bg-soft-blue text-primary">{t("products.askAi")}</a>
+            <a href={`/approvals?product=${product.id}`} className="btn btn-sm bg-track text-fg">{t("products.requestApproval")}</a>
+          </div>
+        )}
+
         <label className="grid gap-1.5">
           <span className="text-[13px] font-semibold text-fg2">{t("field.notes")} <span className="font-normal text-fg3">· {t("field.optional")}</span></span>
           <textarea id="f-notes" className="field h-24 py-3" value={f.notes} maxLength={1000} onChange={(e) => set("notes", e.target.value)} />

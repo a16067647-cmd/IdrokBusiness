@@ -34,7 +34,10 @@ export default function ProductsPage() {
           <h1 className="m-0 text-[30px] font-extrabold tracking-[-0.03em]">{t("products.title")}</h1>
           <p className="m-0 mt-1 text-[15px] text-fg2">{t("products.lead")}</p>
         </div>
-        <button type="button" className="btn btn-primary" onClick={() => openEditor()}><Icon name="plus" size={18} />{t("products.add")}</button>
+        <div className="flex flex-wrap gap-2">
+          <a href="/approvals" className="btn glass text-fg"><Icon name="shield" size={18} />{t("appr.link")}</a>
+          <button type="button" className="btn btn-primary" onClick={() => openEditor()}><Icon name="plus" size={18} />{t("products.add")}</button>
+        </div>
       </div>
 
       {products.length === 0 ? (
