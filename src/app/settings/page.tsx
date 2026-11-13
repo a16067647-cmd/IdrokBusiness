@@ -62,6 +62,11 @@ export default function SettingsPage() {
           <button type="button" onClick={replayIntro} className="btn btn-primary btn-sm"><Icon name="play" size={16} />{t("settings.introReplay")}</button>
         </Row>
       </Card>
+      <a href="/about" className="glass mb-3.5 flex items-center gap-3 rounded-card px-5 py-4 transition-transform active:scale-[0.99]">
+        <span className="grid h-9 w-9 flex-none place-items-center rounded-xl bg-soft-blue text-primary"><Icon name="info" size={18} /></span>
+        <span className="flex-1 text-[15px] font-semibold">{t("about.link")}</span>
+        <Icon name="chevron" size={18} className="text-fg3" />
+      </a>
       <Card>
         <div className="mb-1.5 flex items-center gap-2.5"><Icon name="shield" size={18} className="text-primary" /><h2 className="m-0 text-[17px] font-bold">{t("settings.about")}</h2></div>
         <p className="m-0 text-sm text-fg2">{t("settings.aboutBody")}</p>

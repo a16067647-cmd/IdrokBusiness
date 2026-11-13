@@ -16,12 +16,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { configured, loading, session, profile } = useAuth();
   const onAuthPage = pathname.startsWith("/auth");
-  // Signed-out users only see the sign-in screen (when sign-in is configured).
-  const blocked = configured && !session && !onAuthPage;
+  // Pages anyone can open without signing in (shareable links).
+  const isPublic = onAuthPage || pathname === "/about";
+  // Signed-out users only see the sign-in screen and public pages (when sign-in is configured).
+  const blocked = configured && !session && !isPublic;
   useEffect(() => {
     if (!loading && blocked) router.replace("/auth");
   }, [loading, blocked, router]);
-  const showNav = !onAuthPage && !blocked;
+  const showNav = !onAuthPage && !blocked && !(configured && !session);
 
   // Liquid-glass sheen follows the pointer across any .glass surface.
   useEffect(() => {

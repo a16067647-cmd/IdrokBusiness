@@ -147,8 +147,11 @@ export default function AuthPage() {
               <button type="button" className="inline-flex items-center justify-center gap-1 text-sm font-semibold text-primary" onClick={() => switchMode("signin")}><Icon name="back" size={16} />{t("auth.backToSignin")}</button>
             )}
           </form>
-        )}
+                )}
       </div>
+      <p className="mt-5 text-center text-[13px] text-fg3">
+        <a href="/about" className="font-semibold text-primary">{t("about.link")}</a>
+      </p>
     </div>
   );
 }
